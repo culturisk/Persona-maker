@@ -1,16 +1,18 @@
-import './globals.css'
+import "./globals.css";
+import { Toaster } from "sonner";
 
 export const metadata = {
-  title: 'Next.js MongoDB Template',
-  description: 'A simple template with App Router, MongoDB, and shadcn/ui',
-}
+  title: "Human-Rooted Segmentation Studio",
+  description: "Build personas from human needs, culture, and economics",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className="antialiased">
         {children}
+        <Toaster />
       </body>
     </html>
-  )
+  );
 }
