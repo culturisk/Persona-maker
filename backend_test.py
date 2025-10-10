@@ -240,8 +240,8 @@ class BackendTester:
                     "weekend": ["Sat", "Sun"]
                 },
                 "schedulingNorms": {
-                    "late_evening_ok": false,
-                    "weekend_work": false
+                    "late_evening_ok": False,
+                    "weekend_work": False
                 },
                 "festivals": ["Diwali", "Holi", "Eid"],
                 "purchasingConstraints": {
