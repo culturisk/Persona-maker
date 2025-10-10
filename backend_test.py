@@ -333,9 +333,9 @@ class BackendTester:
                 "creditAccess": "limited",
                 "financialGoals": ["business_expansion", "emergency_fund", "education"],
                 "constraints": {
-                    "shared_device": false,
-                    "limited_data": false,
-                    "time_poor": true
+                    "shared_device": False,
+                    "limited_data": False,
+                    "time_poor": True
                 }
             }
             
