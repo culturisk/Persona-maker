@@ -245,13 +245,13 @@ class BackendTester:
                 },
                 "festivals": ["Diwali", "Holi", "Eid"],
                 "purchasingConstraints": {
-                    "cod_prevalence": true,
-                    "low_bandwidth": false
+                    "cod_prevalence": True,
+                    "low_bandwidth": False
                 },
                 "deviceChannelPrefs": {
-                    "android_share_high": true,
-                    "whatsapp_preferred": true,
-                    "email_secondary": true
+                    "android_share_high": True,
+                    "whatsapp_preferred": True,
+                    "email_secondary": True
                 }
             }
             
