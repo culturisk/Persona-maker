@@ -323,10 +323,10 @@ class BackendTester:
                 "priceSensitivity": "high",
                 "purchaseFrequency": "occasional",
                 "paymentBehaviour": {
-                    "prefers_cod": true,
-                    "upi": true,
-                    "emi": false,
-                    "subscription_aversion": true
+                    "prefers_cod": True,
+                    "upi": True,
+                    "emi": False,
+                    "subscription_aversion": True
                 },
                 "savingsInclination": "balanced",
                 "riskAppetite": "moderate",
