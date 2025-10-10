@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Human-Rooted Segmentation Studio Database Schema
 
 generator client {
   provider = "prisma-client-js"
@@ -12,4 +8,168 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  name       String?
+  avatarUrl  String?  @map("avatar_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  ownedWorkspaces     Workspace[]      @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  createdSegments     Segment[]        @relation("SegmentCreator")
+  createdPersonas     Persona[]        @relation("PersonaCreator")
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String   @map("owner_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  owner    User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members  WorkspaceMember[]
+  segments Segment[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String @id @default(uuid())
+  workspaceId String @map("workspace_id")
+  userId      String @map("user_id")
+  role        String @default("member") // member, admin
+
+  // Relationships
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+model Segment {
+  id            String   @id @default(uuid())
+  workspaceId   String   @map("workspace_id")
+  name          String
+  frame         String?
+  product       String?
+  primaryBenefit String? @map("primary_benefit")
+  reason        String?
+  context       String?
+  cultureAxes   Json?    @map("culture_axes") // communal↔individual, certainty↔exploration, etc.
+  values        Json?
+  emotions      Json?
+  fears         Json?
+  languageGuardrails Json? @map("language_guardrails") // do_not_say / say_instead
+  evidence      String?
+  notes         String?
+  createdBy     String   @map("created_by")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator         User            @relation("SegmentCreator", fields: [createdBy], references: [id])
+  cultureProfile  CultureProfile?
+  economicProfile EconomicProfile?
+  personas        Persona[]
+
+  @@map("segments")
+}
+
+model CultureProfile {
+  id                 String   @id @default(uuid())
+  segmentId          String   @unique @map("segment_id")
+  locale             String?  // e.g., en-IN, hi-IN, mr-IN
+  languages          Json?    // [{code:"mr", script:"Deva", proficiency:"primary"}, ...]
+  region             Json?    // {country:"IN", state:"MH", city:"Pune", city_tier:"Tier-1|2|3"}
+  urbanicity         String?  // urban | semi-urban | rural
+  communicationStyle String?  @map("communication_style") // high-context | low-context
+  timeOrientation    String?  @map("time_orientation") // monochronic | polychronic
+  formalityNorm      String?  @map("formality_norm") // formal | casual | mixed
+  workweek           Json?    // {start:"Mon", end:"Fri", weekend:["Sat","Sun"]}
+  schedulingNorms    Json?    @map("scheduling_norms") // {late_evening_ok:true, ...}
+  festivals          Json?    // neutral labels only
+  purchasingConstraints Json? @map("purchasing_constraints") // {cod_prevalence:true, low_bandwidth:true}
+  deviceChannelPrefs Json?   @map("device_channel_prefs") // {android_share_high:true, whatsapp_preferred:true}
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment  Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  personas Persona[]
+
+  @@map("culture_profiles")
+}
+
+model EconomicProfile {
+  id                        String   @id @default(uuid())
+  segmentId                 String   @unique @map("segment_id")
+  incomeBracket             String?  @map("income_bracket") // e.g., "<₹25k", "₹25k–₹50k", "₹50k–₹1L", "₹1L–₹2L", "₹2L+"
+  currency                  String?  @default("INR") // ISO 4217 (INR, USD, etc.)
+  profession                String?  // student, junior staff, team lead, manager, CXO, gig/freelancer, self-employed, SME owner
+  industry                  String?  // IT/ITeS, retail, logistics, healthcare, edu, etc.
+  yearsOfService            Int?     @map("years_of_service") // total experience
+  employmentType            String?  @map("employment_type") // full-time | part-time | gig | self-employed
+  financialBackground       String?  @map("financial_background") // first-gen earner, middle-class stable, entrepreneurial/volatile
+  familyFinancialBackground String?  @map("family_financial_background") // dependent parents, dual-income household, caretaker responsibilities
+  socioeconomicStatus       String?  @map("socioeconomic_status") // LOW | LOWER-MID | MID | UPPER-MID | HIGH
+  priceSensitivity          String?  @map("price_sensitivity") // very-high | high | medium | low
+  purchaseFrequency         String?  @map("purchase_frequency") // rare | occasional | regular | habitual
+  paymentBehaviour          Json?    @map("payment_behaviour") // {prefers_cod:true, upi:true, emi:true, subscription_aversion:true}
+  savingsInclination        String?  @map("savings_inclination") // saver | balanced | spender
+  riskAppetite              String?  @map("risk_appetite") // low | moderate | high
+  creditAccess              String?  @map("credit_access") // none | limited | moderate | strong
+  financialGoals            Json?    @map("financial_goals") // ["education", "home", "vehicle", "travel", "emergency_fund"]
+  constraints               Json?    // {shared_device:true, limited_data:true, time_poor:true}
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment  Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  personas Persona[]
+
+  @@map("economic_profiles")
+}
+
+model Persona {
+  id                String   @id @default(uuid())
+  segmentId         String   @map("segment_id")
+  cultureProfileId  String?  @map("culture_profile_id")
+  economicProfileId String?  @map("economic_profile_id")
+  name              String
+  positioning       String?
+  culturalCues      Json?    @map("cultural_cues") // tone, examples, timings, channels
+  economicCues      Json?    @map("economic_cues") // value framing, pricing/plan hints, payment terms, proof types
+  generalizations   Json?    // testable hypotheses only
+  pillars           Json?    // messaging pillars
+  exportSnapshot    Json?    @map("export_snapshot")
+  createdBy         String   @map("created_by")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment         Segment          @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  cultureProfile  CultureProfile?  @relation(fields: [cultureProfileId], references: [id])
+  economicProfile EconomicProfile? @relation(fields: [economicProfileId], references: [id])
+  creator         User             @relation("PersonaCreator", fields: [createdBy], references: [id])
+
+  @@map("personas")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String
+  resource  String
+  resourceId String? @map("resource_id")
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
 }
