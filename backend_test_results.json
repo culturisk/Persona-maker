@@ -1,17 +1,17 @@
 {
   "summary": {
     "total_tests": 7,
-    "passed": 3,
-    "failed": 4,
-    "success_rate": 42.857142857142854,
-    "test_completed_at": "2025-10-10T17:51:35.962551"
+    "passed": 7,
+    "failed": 0,
+    "success_rate": 100.0,
+    "test_completed_at": "2025-10-10T17:52:06.562272"
   },
   "detailed_results": [
     {
       "test": "Database Connection",
       "success": true,
       "message": "Successfully connected to database. Found 1 workspaces.",
-      "timestamp": "2025-10-10T17:51:32.317688",
+      "timestamp": "2025-10-10T17:52:01.822569",
       "response_data": {
         "workspaces": [
           {
@@ -41,7 +41,34 @@
                 }
               }
             ],
-            "segments": []
+            "segments": [
+              {
+                "id": "b372e715-e8ef-4569-8016-cf206f6883eb",
+                "workspaceId": "ee88220f-6f5e-42c6-8e46-bf4545b034ff",
+                "name": "Tech SMB Owners",
+                "frame": "Professional growth enablement",
+                "product": "CRM Software",
+                "primaryBenefit": "Streamlined customer management and sales tracking",
+                "reason": "Small business owners need efficient tools to manage growing customer bases",
+                "context": "B2B software adoption for small to medium businesses",
+                "cultureAxes": null,
+                "values": [
+                  "efficiency",
+                  "growth"
+                ],
+                "emotions": [
+                  "confidence"
+                ],
+                "fears": [
+                  "complexity"
+                ],
+                "languageGuardrails": null,
+                "evidence": "Market research shows 70% of SMBs struggle with customer data management",
+                "notes": "Focus on ease of use and quick ROI demonstration",
+                "createdBy": "44e4835c-6153-4a75-a333-9587ef12e0b0",
+                "updatedAt": "2025-10-10T17:51:33.452Z"
+              }
+            ]
           }
         ]
       }
@@ -50,7 +77,7 @@
       "test": "Get Workspaces",
       "success": true,
       "message": "Found 1 existing workspaces. Using workspace: demo's Workspace",
-      "timestamp": "2025-10-10T17:51:32.918662",
+      "timestamp": "2025-10-10T17:52:02.363793",
       "response_data": {
         "workspaces": [
           {
@@ -80,7 +107,34 @@
                 }
               }
             ],
-            "segments": []
+            "segments": [
+              {
+                "id": "b372e715-e8ef-4569-8016-cf206f6883eb",
+                "workspaceId": "ee88220f-6f5e-42c6-8e46-bf4545b034ff",
+                "name": "Tech SMB Owners",
+                "frame": "Professional growth enablement",
+                "product": "CRM Software",
+                "primaryBenefit": "Streamlined customer management and sales tracking",
+                "reason": "Small business owners need efficient tools to manage growing customer bases",
+                "context": "B2B software adoption for small to medium businesses",
+                "cultureAxes": null,
+                "values": [
+                  "efficiency",
+                  "growth"
+                ],
+                "emotions": [
+                  "confidence"
+                ],
+                "fears": [
+                  "complexity"
+                ],
+                "languageGuardrails": null,
+                "evidence": "Market research shows 70% of SMBs struggle with customer data management",
+                "notes": "Focus on ease of use and quick ROI demonstration",
+                "createdBy": "44e4835c-6153-4a75-a333-9587ef12e0b0",
+                "updatedAt": "2025-10-10T17:51:33.452Z"
+              }
+            ]
           }
         ]
       }
@@ -89,10 +143,10 @@
       "test": "Segment Creation",
       "success": true,
       "message": "Successfully created segment 'Tech SMB Owners' with all specified data",
-      "timestamp": "2025-10-10T17:51:33.461785",
+      "timestamp": "2025-10-10T17:52:02.900801",
       "response_data": {
         "segment": {
-          "id": "b372e715-e8ef-4569-8016-cf206f6883eb",
+          "id": "6f56870a-47da-46c3-82d9-75993cb4c067",
           "workspaceId": "ee88220f-6f5e-42c6-8e46-bf4545b034ff",
           "name": "Tech SMB Owners",
           "frame": "Professional growth enablement",
@@ -115,37 +169,147 @@
           "evidence": "Market research shows 70% of SMBs struggle with customer data management",
           "notes": "Focus on ease of use and quick ROI demonstration",
           "createdBy": "44e4835c-6153-4a75-a333-9587ef12e0b0",
-          "updatedAt": "2025-10-10T17:51:33.452Z"
+          "updatedAt": "2025-10-10T17:52:02.892Z"
         }
       }
     },
     {
       "test": "Culture Profile",
-      "success": false,
-      "message": "Error: name 'false' is not defined",
-      "timestamp": "2025-10-10T17:51:33.961920",
-      "response_data": null
+      "success": true,
+      "message": "Successfully created culture profile for locale 'en-IN'",
+      "timestamp": "2025-10-10T17:52:03.433494",
+      "response_data": {
+        "profile": {
+          "id": "02dcf002-84dd-4ea6-988c-11c044152b1a",
+          "segmentId": "6f56870a-47da-46c3-82d9-75993cb4c067",
+          "locale": "en-IN",
+          "languages": [
+            {
+              "code": "en",
+              "script": "Latn",
+              "proficiency": "primary"
+            },
+            {
+              "code": "hi",
+              "script": "Deva",
+              "proficiency": "secondary"
+            }
+          ],
+          "region": {
+            "city": "Mumbai",
+            "state": "MH",
+            "country": "IN",
+            "city_tier": "Tier-1"
+          },
+          "urbanicity": "urban",
+          "communicationStyle": "low_context",
+          "timeOrientation": "monochronic",
+          "formalityNorm": "mixed",
+          "workweek": {
+            "end": "Fri",
+            "start": "Mon",
+            "weekend": [
+              "Sat",
+              "Sun"
+            ]
+          },
+          "schedulingNorms": {
+            "weekend_work": false,
+            "late_evening_ok": false
+          },
+          "festivals": [
+            "Diwali",
+            "Holi",
+            "Eid"
+          ],
+          "purchasingConstraints": {
+            "low_bandwidth": false,
+            "cod_prevalence": true
+          },
+          "deviceChannelPrefs": {
+            "email_secondary": true,
+            "android_share_high": true,
+            "whatsapp_preferred": true
+          },
+          "createdAt": "2025-10-10T17:52:03.423Z",
+          "updatedAt": "2025-10-10T17:52:03.423Z"
+        }
+      }
     },
     {
       "test": "Economic Profile",
-      "success": false,
-      "message": "Error: name 'true' is not defined",
-      "timestamp": "2025-10-10T17:51:34.462038",
-      "response_data": null
+      "success": true,
+      "message": "Successfully created economic profile for SME_owner with \u20b91L-\u20b92L income",
+      "timestamp": "2025-10-10T17:52:03.963872",
+      "response_data": {
+        "profile": {
+          "id": "e39f1f33-2636-449a-859c-033030d639d0",
+          "segmentId": "6f56870a-47da-46c3-82d9-75993cb4c067",
+          "incomeBracket": "\u20b91L-\u20b92L",
+          "currency": "INR",
+          "profession": "SME_owner",
+          "industry": "retail",
+          "yearsOfService": 8,
+          "employmentType": "self-employed",
+          "financialBackground": "entrepreneurial/volatile",
+          "familyFinancialBackground": "dual-income household",
+          "socioeconomicStatus": "LOWER-MID",
+          "priceSensitivity": "high",
+          "purchaseFrequency": "occasional",
+          "paymentBehaviour": {
+            "emi": false,
+            "upi": true,
+            "prefers_cod": true,
+            "subscription_aversion": true
+          },
+          "savingsInclination": "balanced",
+          "riskAppetite": "moderate",
+          "creditAccess": "limited",
+          "financialGoals": [
+            "business_expansion",
+            "emergency_fund",
+            "education"
+          ],
+          "constraints": {
+            "time_poor": true,
+            "limited_data": false,
+            "shared_device": false
+          },
+          "createdAt": "2025-10-10T17:52:03.955Z",
+          "updatedAt": "2025-10-10T17:52:03.955Z"
+        }
+      }
     },
     {
       "test": "Persona Generation",
-      "success": false,
-      "message": "Missing required profile IDs",
-      "timestamp": "2025-10-10T17:51:34.962162",
-      "response_data": null
+      "success": true,
+      "message": "Successfully generated persona 'The Innovator (SME_owner)' with all required fields and assumptions_vs_facts",
+      "timestamp": "2025-10-10T17:52:05.528506",
+      "response_data": {
+        "persona_name": "The Innovator (SME_owner)",
+        "has_assumptions_vs_facts": true
+      }
     },
     {
       "test": "Export Functionality",
-      "success": false,
-      "message": "No persona ID available",
-      "timestamp": "2025-10-10T17:51:35.462276",
-      "response_data": null
+      "success": true,
+      "message": "Successfully exported persona with all required sections including assumptions_vs_facts",
+      "timestamp": "2025-10-10T17:52:06.061950",
+      "response_data": {
+        "sections": [
+          "persona",
+          "segment",
+          "culture_profile",
+          "economic_profile",
+          "export_metadata",
+          "assumptions_vs_facts"
+        ],
+        "has_assumptions_vs_facts": true,
+        "export_metadata": {
+          "exported_at": "2025-10-10T17:52:06.057Z",
+          "version": "1.0.0"
+        }
+      }
     }
   ]
 }
