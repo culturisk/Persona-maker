@@ -361,89 +361,59 @@ class EnhancedBackendTester:
         
         return False
     
-    def test_economic_profile(self):
-        """Test 5: Economic Profile Creation with specified test data"""
+    def test_persona_operations(self):
+        """Test 6: Persona Operations - Create and delete personas"""
+        print("\n=== Testing Persona Operations ===")
+        
+        if not self.segment_id:
+            self.log_result("Persona Operations Setup", False, "No segment ID available for persona testing")
+            return False
+
+        # Test POST /api/personas/generate - Generate persona
         try:
-            print("\n=== Testing Economic Profile Creation ===")
-            
-            if not self.segment_id:
-                self.log_result("Economic Profile", False, "No segment ID available")
-                return False
-            
-            # Test data as specified in review request
-            economic_data = {
-                "segmentId": self.segment_id,
-                "incomeBracket": "₹1L-₹2L",
-                "currency": "INR",
-                "profession": "SME_owner",
-                "industry": "retail",
-                "yearsOfService": 8,
-                "employmentType": "self-employed",
-                "financialBackground": "entrepreneurial/volatile",
-                "familyFinancialBackground": "dual-income household",
-                "socioeconomicStatus": "LOWER-MID",
-                "priceSensitivity": "high",
-                "purchaseFrequency": "occasional",
-                "paymentBehaviour": {
-                    "prefers_cod": True,
-                    "upi": True,
-                    "emi": False,
-                    "subscription_aversion": True
-                },
-                "savingsInclination": "balanced",
-                "riskAppetite": "moderate",
-                "creditAccess": "limited",
-                "financialGoals": ["business_expansion", "emergency_fund", "education"],
-                "constraints": {
-                    "shared_device": False,
-                    "limited_data": False,
-                    "time_poor": True
-                }
+            persona_data = {
+                "segmentId": self.segment_id
             }
-            
-            response = self.session.post(
-                f"{self.base_url}/economic-profiles",
-                json=economic_data,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
+            response = self.make_request('POST', '/personas/generate', persona_data)
+            if response and response.status_code == 200:
                 data = response.json()
-                self.economic_profile_id = data['profile']['id']
-                
-                # Verify key fields
-                profile = data['profile']
-                if (profile['incomeBracket'] == economic_data['incomeBracket'] and 
-                    profile['profession'] == economic_data['profession'] and
-                    profile['priceSensitivity'] == economic_data['priceSensitivity']):
-                    
-                    self.log_result(
-                        "Economic Profile", 
-                        True, 
-                        f"Successfully created economic profile for {economic_data['profession']} with {economic_data['incomeBracket']} income",
-                        data
-                    )
+                if 'persona' in data and 'name' in data['persona']:
+                    self.persona_id = data['persona']['id']
+                    self.log_result("POST /api/personas/generate", True, 
+                                f"Generated persona: {data['persona']['name']}")
                 else:
-                    self.log_result(
-                        "Economic Profile", 
-                        False, 
-                        "Economic profile created but data validation failed",
-                        data
-                    )
+                    self.log_result("POST /api/personas/generate", False, "Invalid response structure")
                     return False
             else:
-                self.log_result(
-                    "Economic Profile", 
-                    False, 
-                    f"Failed to create economic profile: {response.status_code} - {response.text}"
-                )
+                self.log_result("POST /api/personas/generate", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
                 return False
-            
-            return True
-            
         except Exception as e:
-            self.log_result("Economic Profile", False, f"Error: {str(e)}")
+            self.log_result("POST /api/personas/generate", False, f"Error: {str(e)}")
             return False
+
+        # Test DELETE /api/personas/:id - Delete persona
+        if self.persona_id:
+            try:
+                response = self.make_request('DELETE', f'/personas/{self.persona_id}')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'message' in data and 'deleted successfully' in data['message']:
+                        self.log_result("DELETE /api/personas/:id", True, 
+                                    "Successfully deleted persona")
+                        return True
+                    else:
+                        self.log_result("DELETE /api/personas/:id", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("DELETE /api/personas/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("DELETE /api/personas/:id", False, f"Error: {str(e)}")
+                return False
+
+        return False
     
     def test_persona_generation(self):
         """Test 6: AI Persona Generation"""
