@@ -519,7 +519,7 @@ async function createEconomicProfile(request) {
 async function generatePersona(request) {
   try {
     const { segmentId, cultureProfileId, economicProfileId } = await request.json();
-    const user = await ensureMockUser();
+    const user = await getCurrentUserOrMock(request);
     
     // Fetch required data
     const segment = await prisma.segment.findUnique({
