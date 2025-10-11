@@ -94,63 +94,92 @@ class EnhancedBackendTester:
             self.log_result("Demo Mode Authentication", False, f"Connection error: {str(e)}")
             return False
     
-    def test_workspace_api(self):
-        """Test 2: Workspace API - Get workspaces and create default workspace"""
+    def test_workspace_crud_operations(self):
+        """Test 2: Enhanced Workspace API Endpoints with validation"""
+        print("\n=== Testing Workspace CRUD Operations ===")
+        
+        # Test GET /api/workspaces
         try:
-            print("\n=== Testing Workspace API ===")
-            
-            # First get existing workspaces
-            response = self.session.get(f"{self.base_url}/workspaces")
-            if response.status_code != 200:
-                self.log_result("Get Workspaces", False, f"Failed to get workspaces: {response.status_code}")
-                return False
-                
-            data = response.json()
-            workspaces = data.get('workspaces', [])
-            
-            if workspaces:
-                # Use existing workspace
-                self.workspace_id = workspaces[0]['id']
-                self.log_result(
-                    "Get Workspaces", 
-                    True, 
-                    f"Found {len(workspaces)} existing workspaces. Using workspace: {workspaces[0]['name']}",
-                    data
-                )
-            else:
-                # Create new workspace
-                workspace_data = {
-                    "name": "Test Workspace for Segmentation Studio"
-                }
-                
-                response = self.session.post(
-                    f"{self.base_url}/workspaces",
-                    json=workspace_data,
-                    headers={'Content-Type': 'application/json'}
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    self.workspace_id = data['workspace']['id']
-                    self.log_result(
-                        "Create Workspace", 
-                        True, 
-                        f"Successfully created workspace: {data['workspace']['name']}",
-                        data
-                    )
+            response = self.make_request('GET', '/workspaces')
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'workspaces' in data and isinstance(data['workspaces'], list):
+                    self.log_result("GET /api/workspaces", True, 
+                                f"Retrieved {len(data['workspaces'])} workspaces")
+                    # Store first workspace for later tests
+                    if data['workspaces']:
+                        self.workspace_id = data['workspaces'][0]['id']
                 else:
-                    self.log_result(
-                        "Create Workspace", 
-                        False, 
-                        f"Failed to create workspace: {response.status_code} - {response.text}"
-                    )
+                    self.log_result("GET /api/workspaces", False, "Invalid response structure")
                     return False
-            
-            return True
-            
+            else:
+                self.log_result("GET /api/workspaces", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+                return False
         except Exception as e:
-            self.log_result("Workspace API", False, f"Error: {str(e)}")
+            self.log_result("GET /api/workspaces", False, f"Error: {str(e)}")
             return False
+
+        # Test POST /api/workspaces - Valid workspace creation
+        try:
+            workspace_data = {
+                "name": f"Test Workspace {int(time.time())}"
+            }
+            response = self.make_request('POST', '/workspaces', workspace_data)
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'workspace' in data and data['workspace']['name'] == workspace_data['name']:
+                    self.workspace_id = data['workspace']['id']  # Update for later tests
+                    self.log_result("POST /api/workspaces (Valid)", True, 
+                                f"Created workspace: {data['workspace']['name']}")
+                else:
+                    self.log_result("POST /api/workspaces (Valid)", False, "Invalid response structure")
+                    return False
+            else:
+                self.log_result("POST /api/workspaces (Valid)", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("POST /api/workspaces (Valid)", False, f"Error: {str(e)}")
+            return False
+
+        # Test POST /api/workspaces - Invalid data (empty name)
+        try:
+            invalid_data = {"name": ""}
+            response = self.make_request('POST', '/workspaces', invalid_data)
+            if response and response.status_code == 400:
+                self.log_result("POST /api/workspaces (Invalid - Empty Name)", True, 
+                            "Correctly rejected empty workspace name")
+            else:
+                self.log_result("POST /api/workspaces (Invalid - Empty Name)", False, 
+                            f"Should have returned 400, got: {response.status_code if response else 'No response'}")
+        except Exception as e:
+            self.log_result("POST /api/workspaces (Invalid - Empty Name)", False, f"Error: {str(e)}")
+
+        # Test PUT /api/workspaces/:id - Update workspace
+        if self.workspace_id:
+            try:
+                update_data = {
+                    "name": f"Updated Workspace {int(time.time())}"
+                }
+                response = self.make_request('PUT', f'/workspaces/{self.workspace_id}', update_data)
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'workspace' in data and data['workspace']['name'] == update_data['name']:
+                        self.log_result("PUT /api/workspaces/:id", True, 
+                                    f"Updated workspace name to: {data['workspace']['name']}")
+                    else:
+                        self.log_result("PUT /api/workspaces/:id", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("PUT /api/workspaces/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("PUT /api/workspaces/:id", False, f"Error: {str(e)}")
+                return False
+
+        return True
     
     def test_segment_creation(self):
         """Test 3: Segment Creation with specified test data"""
