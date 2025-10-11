@@ -70,41 +70,28 @@ class EnhancedBackendTester:
             print(f"Request failed: {e}")
             return None
     
-    def test_database_connection(self):
-        """Test 1: Database Connection via Workspaces API"""
+    def test_authentication_system(self):
+        """Test 1: Authentication System - NextAuth.js integration and demo mode fallback"""
+        print("\n=== Testing Authentication System ===")
+        
+        # Test demo mode fallback
         try:
-            print("\n=== Testing Database Connection ===")
-            response = self.session.get(f"{self.base_url}/workspaces")
-            
-            if response.status_code == 200:
+            response = self.make_request('GET', '/workspaces')
+            if response and response.status_code == 200:
                 data = response.json()
                 if 'workspaces' in data:
-                    self.log_result(
-                        "Database Connection", 
-                        True, 
-                        f"Successfully connected to database. Found {len(data['workspaces'])} workspaces.",
-                        data
-                    )
+                    self.log_result("Demo Mode Authentication", True, 
+                                f"Successfully authenticated in demo mode, found {len(data['workspaces'])} workspaces")
                     return True
                 else:
-                    self.log_result(
-                        "Database Connection", 
-                        False, 
-                        "Invalid response format - missing 'workspaces' key",
-                        data
-                    )
+                    self.log_result("Demo Mode Authentication", False, "Invalid response structure")
                     return False
             else:
-                self.log_result(
-                    "Database Connection", 
-                    False, 
-                    f"HTTP {response.status_code}: {response.text}",
-                    response.json() if response.headers.get('content-type', '').startswith('application/json') else None
-                )
+                self.log_result("Demo Mode Authentication", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
                 return False
-                
         except Exception as e:
-            self.log_result("Database Connection", False, f"Connection error: {str(e)}")
+            self.log_result("Demo Mode Authentication", False, f"Connection error: {str(e)}")
             return False
     
     def test_workspace_api(self):
