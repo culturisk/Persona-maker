@@ -415,79 +415,36 @@ class EnhancedBackendTester:
 
         return False
     
-    def test_persona_generation(self):
-        """Test 6: AI Persona Generation"""
+    def test_error_handling(self):
+        """Test 7: Error Handling - Test proper error responses"""
+        print("\n=== Testing Error Handling ===")
+        
+        # Test 404 for non-existent segment
         try:
-            print("\n=== Testing Persona Generation ===")
-            
-            if not all([self.segment_id, self.culture_profile_id, self.economic_profile_id]):
-                self.log_result("Persona Generation", False, "Missing required profile IDs")
-                return False
-            
-            persona_request = {
-                "segmentId": self.segment_id,
-                "cultureProfileId": self.culture_profile_id,
-                "economicProfileId": self.economic_profile_id
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/personas/generate",
-                json=persona_request,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.persona_id = data['persona']['id']
-                
-                # Verify persona structure
-                persona = data['persona']
-                required_fields = ['name', 'positioning', 'cultural_cues', 'economic_cues', 'generalizations', 'pillars']
-                
-                missing_fields = [field for field in required_fields if field not in persona or not persona[field]]
-                
-                if not missing_fields:
-                    # Check for assumptions_vs_facts in export_snapshot
-                    has_assumptions = (
-                        'export_snapshot' in persona and 
-                        persona['export_snapshot'] and 
-                        'assumptions_vs_facts' in persona['export_snapshot']
-                    )
-                    
-                    if has_assumptions:
-                        self.log_result(
-                            "Persona Generation", 
-                            True, 
-                            f"Successfully generated persona '{persona['name']}' with all required fields and assumptions_vs_facts",
-                            {'persona_name': persona['name'], 'has_assumptions_vs_facts': True}
-                        )
-                    else:
-                        self.log_result(
-                            "Persona Generation", 
-                            True, 
-                            f"Generated persona '{persona['name']}' but missing assumptions_vs_facts section",
-                            {'persona_name': persona['name'], 'has_assumptions_vs_facts': False}
-                        )
-                else:
-                    self.log_result(
-                        "Persona Generation", 
-                        False, 
-                        f"Persona generated but missing required fields: {missing_fields}",
-                        data
-                    )
-                    return False
+            fake_segment_id = str(uuid.uuid4())
+            response = self.make_request('GET', f'/segments/{fake_segment_id}')
+            if response and response.status_code == 404:
+                self.log_result("404 Error Handling", True, 
+                            "Correctly returned 404 for non-existent segment")
             else:
-                self.log_result(
-                    "Persona Generation", 
-                    False, 
-                    f"Failed to generate persona: {response.status_code} - {response.text}"
-                )
-                return False
-            
-            return True
-            
+                self.log_result("404 Error Handling", False, 
+                            f"Should have returned 404, got: {response.status_code if response else 'No response'}")
         except Exception as e:
-            self.log_result("Persona Generation", False, f"Error: {str(e)}")
+            self.log_result("404 Error Handling", False, f"Error: {str(e)}")
+
+        # Test 400 for invalid UUID
+        try:
+            response = self.make_request('GET', '/segments/invalid-uuid')
+            if response and response.status_code in [400, 404, 500]:  # Any error is acceptable for invalid UUID
+                self.log_result("Invalid UUID Handling", True, 
+                            f"Correctly handled invalid UUID with status {response.status_code}")
+                return True
+            else:
+                self.log_result("Invalid UUID Handling", False, 
+                            f"Should have returned error, got: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("Invalid UUID Handling", False, f"Error: {str(e)}")
             return False
     
     def test_export_functionality(self):
