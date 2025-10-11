@@ -1,17 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { prisma, getOrCreateUser } from '../../../lib/database.js';
 import { personaAI } from '../../../lib/ai.js';
-import { v4 as uuidv4 } from 'uuid';
+import { getCurrentUser, canAccessWorkspace, hasPermission, PERMISSIONS } from '../../../lib/auth-utils.js';
+import { 
+  validateSegmentForm, 
+  validateCultureForm, 
+  validateEconomicForm,
+  validateContent 
+} from '../../../lib/validation.js';
 
-// Mock user for now (replace with actual auth later)
+// Mock user fallback for demo mode
 const MOCK_USER = {
   id: 'user-1',
   email: 'demo@example.com',
   name: 'Demo User'
 };
 
-async function ensureMockUser() {
-  return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+async function getCurrentUserOrMock(request) {
+  try {
+    // Check if demo mode
+    const url = new URL(request.url);
+    if (url.searchParams.get('demo') === 'true') {
+      return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+    }
+    
+    // Try to get authenticated user
+    const user = await getCurrentUser(request);
+    if (user) return user;
+    
+    // Fallback to mock user if no auth
+    return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+  } catch (error) {
+    console.error('Error getting user:', error);
+    return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+  }
 }
 
 // GET /api/workspaces - Get all workspaces for user
