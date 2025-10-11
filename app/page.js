@@ -81,12 +81,21 @@ import {
 } from '../lib/seed-data.js';
 
 export default function App() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isDemoMode = searchParams?.get('demo') === 'true';
+  
   const [activeStep, setActiveStep] = useState('workspace');
   const [workspaces, setWorkspaces] = useState([]);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [currentSegment, setCurrentSegment] = useState(null);
   const [segments, setSegments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterBy, setFilterBy] = useState('all');
+  const [editingSegment, setEditingSegment] = useState(null);
+  const [deletingItem, setDeletingItem] = useState(null);
   
   // Form states
   const [segmentForm, setSegmentForm] = useState({
