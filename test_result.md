@@ -141,7 +141,7 @@ backend:
           agent: "testing"
           comment: "All workspace CRUD operations working: GET /api/workspaces (retrieves workspaces with owner/member data), POST /api/workspaces (creates with validation), PUT /api/workspaces/:id (updates with permission checks), DELETE /api/workspaces/:id (deletes with owner verification). Validation system correctly blocks prohibited terms."
 
-  - task: "Segment Creation - POST /api/segments"
+  - task: "Enhanced Segment API Endpoints - Full CRUD with validation"
     implemented: true
     working: true
     file: "app/api/[[...path]]/route.js"
@@ -151,7 +151,19 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "Successfully created segment 'Tech SMB Owners' with all specified test data (values=['efficiency','growth'], emotions=['confidence'], fears=['complexity']). All fields saved correctly to database."
+          comment: "All segment CRUD operations working: POST /api/segments (creates with content validation), GET /api/segments/:id (retrieves single segment), PUT /api/segments/:id (updates with permission checks), DELETE /api/segments/:id (deletes with creator/admin permissions). Content validation correctly blocks prohibited terms in segment names and descriptions."
+
+  - task: "Validation System - Blocked terms and ethical compliance"
+    implemented: true
+    working: true
+    file: "lib/validation.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Content validation system working correctly. Successfully blocks prohibited terms like 'religion', 'race', 'caste', 'exclude' in workspace names and segment content. Returns proper 400 status codes with detailed error messages including suggestions for alternative terms. Validation applied to all user-generated content."
 
   - task: "Culture Profile - POST /api/culture-profiles"
     implemented: true
