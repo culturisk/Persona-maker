@@ -1161,31 +1161,53 @@ export default function App() {
     </div>
   );
 
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner className="mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      <WorkspaceHeader 
+        workspace={currentWorkspace} 
+        onWorkspaceChange={(workspace) => {
+          setCurrentWorkspace(workspace);
+          loadSegments(workspace.id);
+        }}
+      />
+      
       <div className="container mx-auto py-8">
         <div className="max-w-4xl mx-auto">
           {/* Progress indicator */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              {['workspace', 'segment', 'culture', 'economics', 'persona'].map((step, index) => (
-                <div key={step} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    activeStep === step ? 'bg-primary text-primary-foreground' : 
-                    ['workspace', 'segment', 'culture', 'economics'].indexOf(activeStep) > index ? 'bg-green-500 text-white' : 
-                    'bg-muted text-muted-foreground'
-                  }`}>
-                    {index + 1}
+          {activeStep !== 'workspace' && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                {['workspace', 'segment', 'culture', 'economics', 'persona'].map((step, index) => (
+                  <div key={step} className="flex items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      activeStep === step ? 'bg-primary text-primary-foreground' : 
+                      ['workspace', 'segment', 'culture', 'economics'].indexOf(activeStep) > index ? 'bg-green-500 text-white' : 
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {index + 1}
+                    </div>
+                    {index < 4 && (
+                      <div className={`w-16 h-0.5 ${
+                        ['workspace', 'segment', 'culture', 'economics'].indexOf(activeStep) > index ? 'bg-green-500' : 'bg-muted'
+                      }`} />
+                    )}
                   </div>
-                  {index < 4 && (
-                    <div className={`w-16 h-0.5 ${
-                      ['workspace', 'segment', 'culture', 'economics'].indexOf(activeStep) > index ? 'bg-green-500' : 'bg-muted'
-                    }`} />
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Step content */}
           {activeStep === 'workspace' && renderWorkspaceStep()}
