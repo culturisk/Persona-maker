@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Toaster } from "sonner";
+import { SessionProvider } from "./providers/session-provider.js";
 
 export const metadata = {
   title: "Human-Rooted Segmentation Studio",
@@ -10,8 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
-        <Toaster />
+        <SessionProvider>
+          {children}
+          <Toaster />
+        </SessionProvider>
       </body>
     </html>
   );
