@@ -181,78 +181,145 @@ class EnhancedBackendTester:
 
         return True
     
-    def test_segment_creation(self):
-        """Test 3: Segment Creation with specified test data"""
-        try:
-            print("\n=== Testing Segment Creation ===")
-            
-            if not self.workspace_id:
-                self.log_result("Segment Creation", False, "No workspace ID available")
-                return False
-            
-            # Test data as specified in review request
-            segment_data = {
-                "workspaceId": self.workspace_id,
-                "name": "Tech SMB Owners",
-                "product": "CRM Software",
-                "primaryBenefit": "Streamlined customer management and sales tracking",
-                "reason": "Small business owners need efficient tools to manage growing customer bases",
-                "context": "B2B software adoption for small to medium businesses",
-                "values": ["efficiency", "growth"],
-                "emotions": ["confidence"],
-                "fears": ["complexity"],
-                "frame": "Professional growth enablement",
-                "evidence": "Market research shows 70% of SMBs struggle with customer data management",
-                "notes": "Focus on ease of use and quick ROI demonstration"
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/segments",
-                json=segment_data,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.segment_id = data['segment']['id']
-                
-                # Verify the segment data was saved correctly
-                expected_fields = ['name', 'product', 'values', 'emotions', 'fears']
-                all_fields_correct = True
-                
-                for field in expected_fields:
-                    if field not in data['segment'] or data['segment'][field] != segment_data[field]:
-                        all_fields_correct = False
-                        break
-                
-                if all_fields_correct:
-                    self.log_result(
-                        "Segment Creation", 
-                        True, 
-                        f"Successfully created segment '{segment_data['name']}' with all specified data",
-                        data
-                    )
+    def test_validation_system(self):
+        """Test 3: Validation System - Test blocked terms and ethical compliance"""
+        print("\n=== Testing Validation System ===")
+        
+        # Test workspace creation with blocked terms
+        blocked_terms_tests = [
+            ("exclude", "Workspace with exclude"),
+            ("race", "Workspace about race"),
+            ("religion", "Religious workspace"),
+            ("caste", "Caste-based workspace")
+        ]
+        
+        success_count = 0
+        for term, name in blocked_terms_tests:
+            try:
+                blocked_data = {"name": name}
+                response = self.make_request('POST', '/workspaces', blocked_data)
+                if response and response.status_code == 400:
+                    data = response.json()
+                    if 'error' in data and 'Content validation failed' in data['error']:
+                        self.log_result(f"Blocked Term Validation ({term})", True, 
+                                    f"Correctly blocked workspace name containing '{term}'")
+                        success_count += 1
+                    else:
+                        self.log_result(f"Blocked Term Validation ({term})", False, 
+                                    "Wrong error message for blocked term")
                 else:
-                    self.log_result(
-                        "Segment Creation", 
-                        False, 
-                        "Segment created but data validation failed",
-                        data
-                    )
+                    self.log_result(f"Blocked Term Validation ({term})", False, 
+                                f"Should have blocked term '{term}', got status: {response.status_code if response else 'No response'}")
+            except Exception as e:
+                self.log_result(f"Blocked Term Validation ({term})", False, f"Error: {str(e)}")
+        
+        return success_count > 0
+
+    def test_segment_crud_operations(self):
+        """Test 4: Enhanced Segment API Endpoints with validation"""
+        print("\n=== Testing Segment CRUD Operations ===")
+        
+        if not self.workspace_id:
+            self.log_result("Segment CRUD Setup", False, "No workspace ID available for segment testing")
+            return False
+
+        # Test POST /api/segments - Create segment with validation
+        try:
+            segment_data = {
+                "name": "Tech SMB Owners",
+                "workspaceId": self.workspace_id,
+                "frame": "Small business owners in technology sector",
+                "product": "Business productivity software",
+                "primaryBenefit": "Streamline operations and increase efficiency",
+                "reason": "Need to compete with larger companies",
+                "context": "Growing tech SMB market in India",
+                "values": ["efficiency", "growth", "innovation"],
+                "emotions": ["confidence", "excitement"],
+                "fears": ["complexity", "hidden_costs"],
+                "evidence": "Market research shows 70% adoption rate",
+                "notes": "Focus on ease of use and transparent pricing"
+            }
+            response = self.make_request('POST', '/segments', segment_data)
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'segment' in data and data['segment']['name'] == segment_data['name']:
+                    self.segment_id = data['segment']['id']
+                    self.log_result("POST /api/segments (Valid)", True, 
+                                f"Created segment: {data['segment']['name']}")
+                else:
+                    self.log_result("POST /api/segments (Valid)", False, "Invalid response structure")
                     return False
             else:
-                self.log_result(
-                    "Segment Creation", 
-                    False, 
-                    f"Failed to create segment: {response.status_code} - {response.text}"
-                )
+                self.log_result("POST /api/segments (Valid)", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
                 return False
-            
-            return True
-            
         except Exception as e:
-            self.log_result("Segment Creation", False, f"Error: {str(e)}")
+            self.log_result("POST /api/segments (Valid)", False, f"Error: {str(e)}")
             return False
+
+        # Test POST /api/segments - With blocked terms
+        try:
+            blocked_segment_data = {
+                "name": "Exclude certain groups",
+                "workspaceId": self.workspace_id,
+                "context": "We want to exclude people based on race"
+            }
+            response = self.make_request('POST', '/segments', blocked_segment_data)
+            if response and response.status_code == 400:
+                self.log_result("POST /api/segments (Blocked Terms)", True, 
+                            "Correctly blocked segment with prohibited terms")
+            else:
+                self.log_result("POST /api/segments (Blocked Terms)", False, 
+                            f"Should have blocked segment, got status: {response.status_code if response else 'No response'}")
+        except Exception as e:
+            self.log_result("POST /api/segments (Blocked Terms)", False, f"Error: {str(e)}")
+
+        # Test GET /api/segments/:id - Get single segment
+        if self.segment_id:
+            try:
+                response = self.make_request('GET', f'/segments/{self.segment_id}')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'segment' in data and data['segment']['id'] == self.segment_id:
+                        self.log_result("GET /api/segments/:id", True, 
+                                    f"Retrieved segment: {data['segment']['name']}")
+                    else:
+                        self.log_result("GET /api/segments/:id", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("GET /api/segments/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("GET /api/segments/:id", False, f"Error: {str(e)}")
+                return False
+
+        # Test PUT /api/segments/:id - Update segment
+        if self.segment_id:
+            try:
+                update_data = {
+                    "name": "Updated Tech SMB Owners",
+                    "workspaceId": self.workspace_id,
+                    "primaryBenefit": "Enhanced productivity and growth"
+                }
+                response = self.make_request('PUT', f'/segments/{self.segment_id}', update_data)
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'segment' in data and data['segment']['name'] == update_data['name']:
+                        self.log_result("PUT /api/segments/:id", True, 
+                                    f"Updated segment name to: {data['segment']['name']}")
+                    else:
+                        self.log_result("PUT /api/segments/:id", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("PUT /api/segments/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("PUT /api/segments/:id", False, f"Error: {str(e)}")
+                return False
+
+        return True
     
     def test_culture_profile(self):
         """Test 4: Culture Profile Creation with specified test data"""
