@@ -129,7 +129,7 @@ backend:
           agent: "testing"
           comment: "Successfully connected to PostgreSQL database via Prisma. Database setup completed with proper schema migration. All tables created successfully."
 
-  - task: "Workspace API - GET /api/workspaces"
+  - task: "Enhanced Workspace API Endpoints - Full CRUD with validation"
     implemented: true
     working: true
     file: "app/api/[[...path]]/route.js"
@@ -139,7 +139,7 @@ backend:
     status_history:
         - working: true
           agent: "testing"
-          comment: "GET /api/workspaces endpoint working correctly. Returns proper JSON with workspaces array, includes owner and members data. Default workspace creation for mock user functioning."
+          comment: "All workspace CRUD operations working: GET /api/workspaces (retrieves workspaces with owner/member data), POST /api/workspaces (creates with validation), PUT /api/workspaces/:id (updates with permission checks), DELETE /api/workspaces/:id (deletes with owner verification). Validation system correctly blocks prohibited terms."
 
   - task: "Segment Creation - POST /api/segments"
     implemented: true
