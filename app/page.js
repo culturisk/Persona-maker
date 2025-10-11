@@ -374,44 +374,159 @@ export default function App() {
 
   const renderWorkspaceStep = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">Human-Rooted Segmentation Studio</h1>
-        <p className="text-lg text-muted-foreground">Build personas from human needs, culture, and economics</p>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="w-5 h-5" />
-            Workspace
-          </CardTitle>
-          <CardDescription>
-            Manage your segmentation projects in organized workspaces
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {currentWorkspace ? (
-            <div className="space-y-4">
-              <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold">{currentWorkspace.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {segments.length} segments created
-                </p>
+      {currentWorkspace ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Building className="w-5 h-5" />
+                  Segments
+                </div>
+                <Button onClick={() => setActiveStep('segment')}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Segment
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                Manage your segmentation projects and personas
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search and Filter */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search segments..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <Select value={filterBy} onValueChange={setFilterBy}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Segments</SelectItem>
+                    <SelectItem value="with_personas">With Personas</SelectItem>
+                    <SelectItem value="without_personas">No Personas</SelectItem>
+                    <SelectItem value="complete">Complete Profiles</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
-              <Button onClick={() => setActiveStep('segment')} className="w-full">
-                <Plus className="w-4 h-4 mr-2" />
-                Create New Segment
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No workspace found</p>
-              <Button onClick={loadWorkspaces}>Refresh</Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
+              {/* Segments List */}
+              {filteredSegments.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredSegments.map(segment => (
+                    <div key={segment.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium">{segment.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {segment.context || 'No context provided'}
+                          </p>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant={segment.cultureProfile ? "default" : "secondary"}>
+                              Culture {segment.cultureProfile ? "✓" : "○"}
+                            </Badge>
+                            <Badge variant={segment.economicProfile ? "default" : "secondary"}>
+                              Economics {segment.economicProfile ? "✓" : "○"}
+                            </Badge>
+                            <Badge variant={segment.personas?.length > 0 ? "default" : "secondary"}>
+                              Personas ({segment.personas?.length || 0})
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => {
+                              setCurrentSegment(segment);
+                              setActiveStep('segment');
+                              setEditingSegment(segment);
+                            }}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => duplicateSegment(segment)}>
+                              <Plus className="w-4 h-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setDeletingItem({ type: 'segment', id: segment.id, name: segment.name })}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="font-medium mb-2">No segments found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchTerm || filterBy !== 'all' 
+                      ? 'Try adjusting your search or filters'
+                      : 'Create your first segment to get started with persona generation'
+                    }
+                  </p>
+                  {!searchTerm && filterBy === 'all' && (
+                    <Button onClick={() => setActiveStep('segment')}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create First Segment
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      ) : (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Building className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="font-medium mb-2">Loading workspace...</h3>
+            <LoadingSpinner className="mx-auto" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingItem} onOpenChange={() => setDeletingItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {deletingItem?.type}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deletingItem?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingItem?.type === 'segment') {
+                  deleteSegment(deletingItem.id);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 
