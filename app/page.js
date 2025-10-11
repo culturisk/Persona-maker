@@ -164,7 +164,8 @@ export default function App() {
 
   const loadWorkspaces = async () => {
     try {
-      const response = await fetch('/api/workspaces');
+      const url = isDemoMode ? '/api/workspaces?demo=true' : '/api/workspaces';
+      const response = await fetch(url);
       const data = await response.json();
       setWorkspaces(data.workspaces || []);
       
@@ -176,6 +177,70 @@ export default function App() {
       toast.error('Failed to load workspaces');
     }
   };
+
+  // Enhanced segment management
+  const deleteSegment = async (segmentId) => {
+    try {
+      const response = await fetch(`/api/segments/${segmentId}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        toast.success('Segment deleted successfully');
+        setSegments(segments.filter(s => s.id !== segmentId));
+        setDeletingItem(null);
+      } else {
+        toast.error('Failed to delete segment');
+      }
+    } catch (error) {
+      toast.error('Error deleting segment');
+    }
+  };
+
+  const duplicateSegment = async (segment) => {
+    try {
+      const duplicateData = {
+        ...segment,
+        name: `${segment.name} (Copy)`,
+        workspaceId: currentWorkspace.id
+      };
+      delete duplicateData.id;
+      delete duplicateData.createdBy;
+      delete duplicateData.creator;
+      delete duplicateData.cultureProfile;
+      delete duplicateData.economicProfile;
+      delete duplicateData.personas;
+      
+      const response = await fetch('/api/segments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(duplicateData)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Segment duplicated successfully');
+        setSegments([...segments, data.segment]);
+      } else {
+        toast.error('Failed to duplicate segment');
+      }
+    } catch (error) {
+      toast.error('Error duplicating segment');
+    }
+  };
+
+  // Search and filter functionality
+  const filteredSegments = segments.filter(segment => {
+    const matchesSearch = segment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         segment.context?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterBy === 'all') return matchesSearch;
+    if (filterBy === 'with_personas') return matchesSearch && segment.personas?.length > 0;
+    if (filterBy === 'without_personas') return matchesSearch && (!segment.personas || segment.personas.length === 0);
+    if (filterBy === 'complete') return matchesSearch && segment.cultureProfile && segment.economicProfile;
+    
+    return matchesSearch;
+  });
 
   const loadSegments = async (workspaceId) => {
     try {
