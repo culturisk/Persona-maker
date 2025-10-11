@@ -40,6 +40,35 @@ class EnhancedBackendTester:
         print(f"{status}: {test_name} - {message}")
         if response_data and not success:
             print(f"   Response: {json.dumps(response_data, indent=2)}")
+
+    def make_request(self, method, endpoint, data=None, params=None):
+        """Make HTTP request with demo mode support"""
+        url = f"{self.base_url}{endpoint}"
+        
+        # Add demo mode parameter if enabled
+        if DEMO_MODE:
+            if params is None:
+                params = {}
+            params['demo'] = 'true'
+            
+        headers = {'Content-Type': 'application/json'}
+        
+        try:
+            if method.upper() == 'GET':
+                response = self.session.get(url, params=params, headers=headers)
+            elif method.upper() == 'POST':
+                response = self.session.post(url, json=data, params=params, headers=headers)
+            elif method.upper() == 'PUT':
+                response = self.session.put(url, json=data, params=params, headers=headers)
+            elif method.upper() == 'DELETE':
+                response = self.session.delete(url, params=params, headers=headers)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+                
+            return response
+        except Exception as e:
+            print(f"Request failed: {e}")
+            return None
     
     def test_database_connection(self):
         """Test 1: Database Connection via Workspaces API"""
