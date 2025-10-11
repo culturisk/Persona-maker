@@ -26,8 +26,32 @@ import {
   Lightbulb,
   Target,
   Heart,
-  AlertTriangle
+  AlertTriangle,
+  Edit,
+  Trash2,
+  Search,
+  Filter,
+  MoreVertical
 } from 'lucide-react';
+import { WorkspaceHeader } from '@/components/workspace-header.jsx';
+import { FormField } from '@/components/ui/form-field.jsx';
+import { LoadingSpinner } from '@/components/ui/loading-spinner.jsx';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { 
   INCOME_BRACKETS,
