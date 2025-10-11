@@ -495,19 +495,20 @@ class EnhancedBackendTester:
         return False
     
     def run_all_tests(self):
-        """Run all backend tests in sequence"""
-        print(f"🚀 Starting Backend API Tests for Human-Rooted Segmentation Studio")
+        """Run all enhanced backend tests in sequence"""
+        print(f"🚀 Starting Enhanced Human-Rooted Segmentation Studio Backend Tests")
         print(f"📍 Base URL: {self.base_url}")
         print(f"⏰ Test started at: {datetime.now().isoformat()}")
         
         tests = [
-            self.test_database_connection,
-            self.test_workspace_api,
-            self.test_segment_creation,
-            self.test_culture_profile,
-            self.test_economic_profile,
-            self.test_persona_generation,
-            self.test_export_functionality
+            self.test_authentication_system,
+            self.test_workspace_crud_operations,
+            self.test_validation_system,
+            self.test_segment_crud_operations,
+            self.test_permissions_system,
+            self.test_persona_operations,
+            self.test_error_handling,
+            self.test_cleanup_operations
         ]
         
         passed = 0
@@ -527,9 +528,9 @@ class EnhancedBackendTester:
             time.sleep(0.5)
         
         # Print summary
-        print(f"\n{'='*60}")
-        print(f"🏁 TEST SUMMARY")
-        print(f"{'='*60}")
+        print(f"\n{'='*80}")
+        print(f"🏁 ENHANCED TEST SUMMARY")
+        print(f"{'='*80}")
         print(f"✅ Passed: {passed}")
         print(f"❌ Failed: {failed}")
         print(f"📊 Success Rate: {(passed/(passed+failed)*100):.1f}%")
@@ -540,6 +541,11 @@ class EnhancedBackendTester:
             for result in self.test_results:
                 if not result['success']:
                     print(f"   • {result['test']}: {result['message']}")
+        
+        print(f"\n✅ PASSED TESTS:")
+        for result in self.test_results:
+            if result['success']:
+                print(f"   • {result['test']}")
         
         return failed == 0
 
