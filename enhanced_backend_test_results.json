@@ -1,0 +1,88 @@
+{
+  "summary": {
+    "total_tests": 11,
+    "passed": 0,
+    "failed": 11,
+    "success_rate": 0.0,
+    "test_completed_at": "2025-10-11T04:33:53.402638"
+  },
+  "detailed_results": [
+    {
+      "test": "Demo Mode Authentication",
+      "success": false,
+      "message": "Failed with status: No response",
+      "timestamp": "2025-10-11T04:33:46.259853",
+      "response_data": null
+    },
+    {
+      "test": "GET /api/workspaces",
+      "success": false,
+      "message": "Failed with status: No response",
+      "timestamp": "2025-10-11T04:33:49.794065",
+      "response_data": null
+    },
+    {
+      "test": "Blocked Term Validation (exclude)",
+      "success": false,
+      "message": "Should have blocked term 'exclude', got status: No response",
+      "timestamp": "2025-10-11T04:33:50.312641",
+      "response_data": null
+    },
+    {
+      "test": "Blocked Term Validation (race)",
+      "success": false,
+      "message": "Should have blocked term 'race', got status: No response",
+      "timestamp": "2025-10-11T04:33:50.325541",
+      "response_data": null
+    },
+    {
+      "test": "Blocked Term Validation (religion)",
+      "success": false,
+      "message": "Should have blocked term 'religion', got status: No response",
+      "timestamp": "2025-10-11T04:33:50.339234",
+      "response_data": null
+    },
+    {
+      "test": "Blocked Term Validation (caste)",
+      "success": false,
+      "message": "Should have blocked term 'caste', got status: No response",
+      "timestamp": "2025-10-11T04:33:50.356594",
+      "response_data": null
+    },
+    {
+      "test": "Segment CRUD Setup",
+      "success": false,
+      "message": "No workspace ID available for segment testing",
+      "timestamp": "2025-10-11T04:33:50.856713",
+      "response_data": null
+    },
+    {
+      "test": "Workspace Access Control",
+      "success": false,
+      "message": "Should have returned 403, got: No response",
+      "timestamp": "2025-10-11T04:33:51.373138",
+      "response_data": null
+    },
+    {
+      "test": "Persona Operations Setup",
+      "success": false,
+      "message": "No segment ID available for persona testing",
+      "timestamp": "2025-10-11T04:33:51.873269",
+      "response_data": null
+    },
+    {
+      "test": "404 Error Handling",
+      "success": false,
+      "message": "Should have returned 404, got: No response",
+      "timestamp": "2025-10-11T04:33:52.388387",
+      "response_data": null
+    },
+    {
+      "test": "Invalid UUID Handling",
+      "success": false,
+      "message": "Should have returned error, got: No response",
+      "timestamp": "2025-10-11T04:33:52.402233",
+      "response_data": null
+    }
+  ]
+}
