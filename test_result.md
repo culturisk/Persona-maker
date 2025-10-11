@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the Human-Rooted Segmentation Studio backend API endpoints for database connection, workspace management, segment creation, culture profiles, economic profiles, persona generation, and export functionality."
+user_problem_statement: "Test the enhanced Human-Rooted Segmentation Studio with all the new features: Authentication System (NextAuth.js integration and demo mode fallback), Enhanced API Endpoints (all CRUD operations with validation), Validation System (blocked terms and ethical compliance), Permissions System (workspace access control and role-based permissions), User Management (user creation and workspace membership)."
 
 backend:
   - task: "Database Connection via Prisma/PostgreSQL"
