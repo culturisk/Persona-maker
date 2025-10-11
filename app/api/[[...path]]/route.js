@@ -188,15 +188,25 @@ async function deleteWorkspace(request, workspaceId) {
 }
 
 // GET /api/workspaces/:id/segments - Get segments for workspace
-async function getSegments(workspaceId) {
+async function getSegments(workspaceId, request) {
   try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const canAccess = await canAccessWorkspace(user.id, workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const segments = await prisma.segment.findMany({
       where: { workspaceId },
       include: {
         cultureProfile: true,
         economicProfile: true,
-        personas: true,
-        creator: true
+        personas: { select: { id: true, name: true } },
+        creator: { select: { id: true, name: true, email: true } }
       }
     });
     
@@ -204,6 +214,134 @@ async function getSegments(workspaceId) {
   } catch (error) {
     console.error('Error fetching segments:', error);
     return NextResponse.json({ error: 'Failed to fetch segments' }, { status: 500 });
+  }
+}
+
+// GET /api/segments/:id - Get single segment
+async function getSegmentById(segmentId, request) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const segment = await prisma.segment.findUnique({
+      where: { id: segmentId },
+      include: {
+        workspace: true,
+        cultureProfile: true,
+        economicProfile: true,
+        personas: true,
+        creator: { select: { id: true, name: true, email: true } }
+      }
+    });
+
+    if (!segment) {
+      return NextResponse.json({ error: 'Segment not found' }, { status: 404 });
+    }
+
+    const canAccess = await canAccessWorkspace(user.id, segment.workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    return NextResponse.json({ segment });
+  } catch (error) {
+    console.error('Error fetching segment:', error);
+    return NextResponse.json({ error: 'Failed to fetch segment' }, { status: 500 });
+  }
+}
+
+// DELETE /api/personas/:id - Delete persona
+async function deletePersona(request, personaId) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get persona to check permissions
+    const persona = await prisma.persona.findUnique({
+      where: { id: personaId },
+      include: { segment: { select: { workspaceId: true } } }
+    });
+
+    if (!persona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    const canAccess = await canAccessWorkspace(user.id, persona.segment.workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    await prisma.persona.delete({
+      where: { id: personaId }
+    });
+
+    return NextResponse.json({ message: 'Persona deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting persona:', error);
+    return NextResponse.json({ error: 'Failed to delete persona' }, { status: 500 });
+  }
+}
+
+// Update functions for profiles
+async function updateCultureProfile(request, profileId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateCultureForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const profile = await prisma.cultureProfile.update({
+      where: { id: profileId },
+      data: validation.data
+    });
+    
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error('Error updating culture profile:', error);
+    return NextResponse.json({ error: 'Failed to update culture profile' }, { status: 500 });
+  }
+}
+
+async function updateEconomicProfile(request, profileId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateEconomicForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const profile = await prisma.economicProfile.update({
+      where: { id: profileId },
+      data: validation.data
+    });
+    
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error('Error updating economic profile:', error);
+    return NextResponse.json({ error: 'Failed to update economic profile' }, { status: 500 });
   }
 }
 
