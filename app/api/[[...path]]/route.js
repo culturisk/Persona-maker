@@ -38,9 +38,13 @@ async function getCurrentUserOrMock(request) {
 }
 
 // GET /api/workspaces - Get all workspaces for user
-async function getWorkspaces() {
+async function getWorkspaces(request) {
   try {
-    const user = await ensureMockUser();
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const workspaces = await prisma.workspace.findMany({
       where: {
         OR: [
@@ -49,11 +53,19 @@ async function getWorkspaces() {
         ]
       },
       include: {
-        owner: true,
+        owner: { select: { id: true, name: true, email: true } },
         members: {
-          include: { user: true }
+          include: { 
+            user: { select: { id: true, name: true, email: true } }
+          }
         },
-        segments: true
+        segments: {
+          include: {
+            cultureProfile: true,
+            economicProfile: true,
+            personas: { select: { id: true, name: true } }
+          }
+        }
       }
     });
     
