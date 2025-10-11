@@ -79,17 +79,28 @@ async function getWorkspaces(request) {
 // POST /api/workspaces - Create new workspace
 async function createWorkspace(request) {
   try {
-    const { name } = await request.json();
-    const user = await ensureMockUser();
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
     
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateWorkspaceForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
     }
     
     const workspace = await prisma.workspace.create({
       data: {
-        name,
+        name: validation.data.name,
         ownerId: user.id
+      },
+      include: {
+        owner: { select: { id: true, name: true, email: true } }
       }
     });
     
@@ -105,6 +116,74 @@ async function createWorkspace(request) {
   } catch (error) {
     console.error('Error creating workspace:', error);
     return NextResponse.json({ error: 'Failed to create workspace' }, { status: 500 });
+  }
+}
+
+// PUT /api/workspaces/:id - Update workspace
+async function updateWorkspace(request, workspaceId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Check permissions
+    const canAccess = await canAccessWorkspace(user.id, workspaceId, 'admin');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    const validation = validateWorkspaceForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const workspace = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { name: validation.data.name },
+      include: {
+        owner: { select: { id: true, name: true, email: true } }
+      }
+    });
+    
+    return NextResponse.json({ workspace });
+  } catch (error) {
+    console.error('Error updating workspace:', error);
+    return NextResponse.json({ error: 'Failed to update workspace' }, { status: 500 });
+  }
+}
+
+// DELETE /api/workspaces/:id - Delete workspace
+async function deleteWorkspace(request, workspaceId) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Check if user is owner
+    const workspace = await prisma.workspace.findFirst({
+      where: { id: workspaceId, ownerId: user.id }
+    });
+    
+    if (!workspace) {
+      return NextResponse.json({ error: 'Forbidden or not found' }, { status: 403 });
+    }
+    
+    await prisma.workspace.delete({
+      where: { id: workspaceId }
+    });
+    
+    return NextResponse.json({ message: 'Workspace deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting workspace:', error);
+    return NextResponse.json({ error: 'Failed to delete workspace' }, { status: 500 });
   }
 }
 
