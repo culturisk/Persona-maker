@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-Backend API Test Suite for Human-Rooted Segmentation Studio
-Tests all API endpoints with realistic data as specified in the review request.
+Comprehensive Backend API Testing for Enhanced Human-Rooted Segmentation Studio
+Tests authentication, validation, permissions, and all CRUD operations as specified in the review request.
 """
 
 import requests
 import json
 import sys
 import time
+import uuid
 from datetime import datetime
 
 # Get base URL from environment
 BASE_URL = "https://human-segments.preview.emergentagent.com/api"
+DEMO_MODE = True  # Test with demo mode fallback
 
 class BackendTester:
     def __init__(self):
