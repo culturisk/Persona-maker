@@ -476,17 +476,61 @@ export async function GET(request) {
   try {
     if (segments[1] === 'workspaces') {
       if (segments.length === 2) {
-        return await getWorkspaces();
+        return await getWorkspaces(request);
       } else if (segments[3] === 'segments') {
-        return await getSegments(segments[2]);
+        return await getSegments(segments[2], request);
       }
+    } else if (segments[1] === 'segments' && segments.length === 3) {
+      return await getSegmentById(segments[2], request);
     } else if (segments[1] === 'personas' && segments[3] === 'export') {
-      return await exportPersona(segments[2]);
+      return await exportPersona(segments[2], request);
     }
     
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   } catch (error) {
     console.error('GET request error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function PUT(request) {
+  const { pathname } = new URL(request.url);
+  const segments = pathname.split('/').filter(Boolean);
+  
+  try {
+    if (segments[1] === 'workspaces' && segments.length === 3) {
+      return await updateWorkspace(request, segments[2]);
+    } else if (segments[1] === 'segments' && segments.length === 3) {
+      return await updateSegment(request, segments[2]);
+    } else if (segments[1] === 'culture-profiles' && segments.length === 3) {
+      return await updateCultureProfile(request, segments[2]);
+    } else if (segments[1] === 'economic-profiles' && segments.length === 3) {
+      return await updateEconomicProfile(request, segments[2]);
+    }
+    
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  } catch (error) {
+    console.error('PUT request error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  const { pathname } = new URL(request.url);
+  const segments = pathname.split('/').filter(Boolean);
+  
+  try {
+    if (segments[1] === 'workspaces' && segments.length === 3) {
+      return await deleteWorkspace(request, segments[2]);
+    } else if (segments[1] === 'segments' && segments.length === 3) {
+      return await deleteSegment(request, segments[2]);
+    } else if (segments[1] === 'personas' && segments.length === 3) {
+      return await deletePersona(request, segments[2]);
+    }
+    
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  } catch (error) {
+    console.error('DELETE request error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
