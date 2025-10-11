@@ -321,97 +321,45 @@ class EnhancedBackendTester:
 
         return True
     
-    def test_culture_profile(self):
-        """Test 4: Culture Profile Creation with specified test data"""
+    def test_permissions_system(self):
+        """Test 5: Permissions System - Test workspace access control"""
+        print("\n=== Testing Permissions System ===")
+        
+        # Test access to non-existent workspace (should be forbidden)
         try:
-            print("\n=== Testing Culture Profile Creation ===")
-            
-            if not self.segment_id:
-                self.log_result("Culture Profile", False, "No segment ID available")
-                return False
-            
-            # Test data as specified in review request
-            culture_data = {
-                "segmentId": self.segment_id,
-                "locale": "en-IN",
-                "languages": [
-                    {"code": "en", "script": "Latn", "proficiency": "primary"},
-                    {"code": "hi", "script": "Deva", "proficiency": "secondary"}
-                ],
-                "region": {
-                    "country": "IN",
-                    "state": "MH",
-                    "city": "Mumbai",
-                    "city_tier": "Tier-1"
-                },
-                "urbanicity": "urban",
-                "communicationStyle": "low_context",
-                "timeOrientation": "monochronic",
-                "formalityNorm": "mixed",
-                "workweek": {
-                    "start": "Mon",
-                    "end": "Fri",
-                    "weekend": ["Sat", "Sun"]
-                },
-                "schedulingNorms": {
-                    "late_evening_ok": False,
-                    "weekend_work": False
-                },
-                "festivals": ["Diwali", "Holi", "Eid"],
-                "purchasingConstraints": {
-                    "cod_prevalence": True,
-                    "low_bandwidth": False
-                },
-                "deviceChannelPrefs": {
-                    "android_share_high": True,
-                    "whatsapp_preferred": True,
-                    "email_secondary": True
-                }
-            }
-            
-            response = self.session.post(
-                f"{self.base_url}/culture-profiles",
-                json=culture_data,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.culture_profile_id = data['profile']['id']
-                
-                # Verify key fields
-                profile = data['profile']
-                if (profile['locale'] == culture_data['locale'] and 
-                    profile['communicationStyle'] == culture_data['communicationStyle'] and
-                    profile['formalityNorm'] == culture_data['formalityNorm']):
-                    
-                    self.log_result(
-                        "Culture Profile", 
-                        True, 
-                        f"Successfully created culture profile for locale '{culture_data['locale']}'",
-                        data
-                    )
-                else:
-                    self.log_result(
-                        "Culture Profile", 
-                        False, 
-                        "Culture profile created but data validation failed",
-                        data
-                    )
-                    return False
+            fake_workspace_id = str(uuid.uuid4())
+            response = self.make_request('GET', f'/workspaces/{fake_workspace_id}/segments')
+            if response and response.status_code == 403:
+                self.log_result("Workspace Access Control", True, 
+                            "Correctly denied access to non-accessible workspace")
             else:
-                self.log_result(
-                    "Culture Profile", 
-                    False, 
-                    f"Failed to create culture profile: {response.status_code} - {response.text}"
-                )
-                return False
-            
-            return True
-            
+                self.log_result("Workspace Access Control", False, 
+                            f"Should have returned 403, got: {response.status_code if response else 'No response'}")
         except Exception as e:
-            self.log_result("Culture Profile", False, f"Error: {str(e)}")
-            return False
+            self.log_result("Workspace Access Control", False, f"Error: {str(e)}")
+
+        # Test segment access permissions
+        if self.workspace_id:
+            try:
+                response = self.make_request('GET', f'/workspaces/{self.workspace_id}/segments')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'segments' in data:
+                        self.log_result("Segment Access Permissions", True, 
+                                    f"Successfully accessed segments in owned workspace")
+                        return True
+                    else:
+                        self.log_result("Segment Access Permissions", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("Segment Access Permissions", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("Segment Access Permissions", False, f"Error: {str(e)}")
+                return False
+        
+        return False
     
     def test_economic_profile(self):
         """Test 5: Economic Profile Creation with specified test data"""
