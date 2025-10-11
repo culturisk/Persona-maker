@@ -211,12 +211,36 @@ async function getSegments(workspaceId) {
 async function createSegment(request) {
   try {
     const data = await request.json();
-    const user = await ensureMockUser();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateSegmentForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    // Check workspace access
+    const canAccess = await canAccessWorkspace(user.id, validation.data.workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
     
     const segment = await prisma.segment.create({
       data: {
-        ...data,
+        ...validation.data,
         createdBy: user.id
+      },
+      include: {
+        creator: { select: { id: true, name: true, email: true } },
+        cultureProfile: true,
+        economicProfile: true,
+        personas: { select: { id: true, name: true } }
       }
     });
     
@@ -224,6 +248,95 @@ async function createSegment(request) {
   } catch (error) {
     console.error('Error creating segment:', error);
     return NextResponse.json({ error: 'Failed to create segment' }, { status: 500 });
+  }
+}
+
+// PUT /api/segments/:id - Update segment
+async function updateSegment(request, segmentId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Get segment to check workspace access
+    const existingSegment = await prisma.segment.findUnique({
+      where: { id: segmentId },
+      select: { workspaceId: true }
+    });
+    
+    if (!existingSegment) {
+      return NextResponse.json({ error: 'Segment not found' }, { status: 404 });
+    }
+    
+    const canAccess = await canAccessWorkspace(user.id, existingSegment.workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    const validation = validateSegmentForm({ ...data, workspaceId: existingSegment.workspaceId });
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const segment = await prisma.segment.update({
+      where: { id: segmentId },
+      data: validation.data,
+      include: {
+        creator: { select: { id: true, name: true, email: true } },
+        cultureProfile: true,
+        economicProfile: true,
+        personas: { select: { id: true, name: true } }
+      }
+    });
+    
+    return NextResponse.json({ segment });
+  } catch (error) {
+    console.error('Error updating segment:', error);
+    return NextResponse.json({ error: 'Failed to update segment' }, { status: 500 });
+  }
+}
+
+// DELETE /api/segments/:id - Delete segment
+async function deleteSegment(request, segmentId) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    // Get segment to check permissions
+    const segment = await prisma.segment.findUnique({
+      where: { id: segmentId },
+      select: { workspaceId: true, createdBy: true }
+    });
+    
+    if (!segment) {
+      return NextResponse.json({ error: 'Segment not found' }, { status: 404 });
+    }
+    
+    // Check if user can delete (creator or workspace admin)
+    const canAccess = await canAccessWorkspace(user.id, segment.workspaceId, 'admin');
+    const isCreator = segment.createdBy === user.id;
+    
+    if (!canAccess && !isCreator) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    await prisma.segment.delete({
+      where: { id: segmentId }
+    });
+    
+    return NextResponse.json({ message: 'Segment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting segment:', error);
+    return NextResponse.json({ error: 'Failed to delete segment' }, { status: 500 });
   }
 }
 
