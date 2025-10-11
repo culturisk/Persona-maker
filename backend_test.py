@@ -551,17 +551,17 @@ class EnhancedBackendTester:
 
 def main():
     """Main test execution"""
-    tester = BackendTester()
+    tester = EnhancedBackendTester()
     success = tester.run_all_tests()
     
     # Save detailed results to file
-    with open('/app/backend_test_results.json', 'w') as f:
+    with open('/app/enhanced_backend_test_results.json', 'w') as f:
         json.dump({
             'summary': {
                 'total_tests': len(tester.test_results),
                 'passed': sum(1 for r in tester.test_results if r['success']),
                 'failed': sum(1 for r in tester.test_results if not r['success']),
-                'success_rate': sum(1 for r in tester.test_results if r['success']) / len(tester.test_results) * 100,
+                'success_rate': sum(1 for r in tester.test_results if r['success']) / len(tester.test_results) * 100 if tester.test_results else 0,
                 'test_completed_at': datetime.now().isoformat()
             },
             'detailed_results': tester.test_results
