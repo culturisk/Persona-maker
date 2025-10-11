@@ -697,12 +697,4 @@ export async function POST(request) {
   }
 }
 
-export async function PUT(request) {
-  // Handle PUT requests for updates
-  return NextResponse.json({ error: 'Method not implemented' }, { status: 501 });
-}
-
-export async function DELETE(request) {
-  // Handle DELETE requests
-  return NextResponse.json({ error: 'Method not implemented' }, { status: 501 });
-}
+// Duplicate handlers removed - using the ones above
