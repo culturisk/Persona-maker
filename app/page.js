@@ -36,6 +36,7 @@ import {
 import { WorkspaceHeader } from '@/components/workspace-header.jsx';
 import { FormField } from '@/components/ui/form-field.jsx';
 import { LoadingSpinner } from '@/components/ui/loading-spinner.jsx';
+import { PersonaExport } from '@/components/persona-export.jsx';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -178,6 +179,16 @@ export default function App() {
     }
   };
 
+  const loadSegments = async (workspaceId) => {
+    try {
+      const response = await fetch(`/api/workspaces/${workspaceId}/segments`);
+      const data = await response.json();
+      setSegments(data.segments || []);
+    } catch (error) {
+      toast.error('Failed to load segments');
+    }
+  };
+
   // Enhanced segment management
   const deleteSegment = async (segmentId) => {
     try {
@@ -241,16 +252,6 @@ export default function App() {
     
     return matchesSearch;
   });
-
-  const loadSegments = async (workspaceId) => {
-    try {
-      const response = await fetch(`/api/workspaces/${workspaceId}/segments`);
-      const data = await response.json();
-      setSegments(data.segments || []);
-    } catch (error) {
-      toast.error('Failed to load segments');
-    }
-  };
 
   const createSegment = async () => {
     if (!currentWorkspace) return;
@@ -348,27 +349,6 @@ export default function App() {
       toast.error('Failed to generate persona');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const exportPersona = async () => {
-    if (!generatedPersona) return;
-    
-    try {
-      const response = await fetch(`/api/personas/${generatedPersona.id}/export`);
-      const data = await response.json();
-      
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `persona-${generatedPersona.name.replace(/\s+/g, '-')}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      toast.success('Persona exported successfully');
-    } catch (error) {
-      toast.error('Failed to export persona');
     }
   };
 
@@ -1139,13 +1119,16 @@ export default function App() {
                 </TabsContent>
               </Tabs>
               
+              <PersonaExport 
+                persona={generatedPersona}
+                segment={currentSegment}
+                cultureProfile={cultureForm}
+                economicProfile={economicForm}
+              />
+              
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setActiveStep('economics')}>
                   Back
-                </Button>
-                <Button onClick={exportPersona}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export JSON
                 </Button>
                 <Button onClick={() => {
                   setGeneratedPersona(null);
