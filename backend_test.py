@@ -447,69 +447,52 @@ class EnhancedBackendTester:
             self.log_result("Invalid UUID Handling", False, f"Error: {str(e)}")
             return False
     
-    def test_export_functionality(self):
-        """Test 7: Export Persona as JSON"""
-        try:
-            print("\n=== Testing Export Functionality ===")
-            
-            if not self.persona_id:
-                self.log_result("Export Functionality", False, "No persona ID available")
-                return False
-            
-            response = self.session.get(f"{self.base_url}/personas/{self.persona_id}/export")
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify export structure
-                required_sections = ['persona', 'segment', 'culture_profile', 'economic_profile', 'export_metadata']
-                missing_sections = [section for section in required_sections if section not in data]
-                
-                # Check for assumptions_vs_facts specifically
-                has_assumptions_vs_facts = 'assumptions_vs_facts' in data and data['assumptions_vs_facts']
-                
-                if not missing_sections and has_assumptions_vs_facts:
-                    self.log_result(
-                        "Export Functionality", 
-                        True, 
-                        f"Successfully exported persona with all required sections including assumptions_vs_facts",
-                        {
-                            'sections': list(data.keys()),
-                            'has_assumptions_vs_facts': True,
-                            'export_metadata': data.get('export_metadata', {})
-                        }
-                    )
-                elif not missing_sections:
-                    self.log_result(
-                        "Export Functionality", 
-                        True, 
-                        f"Exported persona with all sections but missing assumptions_vs_facts",
-                        {
-                            'sections': list(data.keys()),
-                            'has_assumptions_vs_facts': False
-                        }
-                    )
+    def test_cleanup_operations(self):
+        """Test 8: Cleanup - Test DELETE operations"""
+        print("\n=== Testing Cleanup Operations ===")
+        
+        # Test DELETE /api/segments/:id - Delete segment
+        if self.segment_id:
+            try:
+                response = self.make_request('DELETE', f'/segments/{self.segment_id}')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'message' in data and 'deleted successfully' in data['message']:
+                        self.log_result("DELETE /api/segments/:id", True, 
+                                    "Successfully deleted segment")
+                    else:
+                        self.log_result("DELETE /api/segments/:id", False, "Invalid response structure")
+                        return False
                 else:
-                    self.log_result(
-                        "Export Functionality", 
-                        False, 
-                        f"Export missing required sections: {missing_sections}",
-                        data
-                    )
+                    self.log_result("DELETE /api/segments/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
                     return False
-            else:
-                self.log_result(
-                    "Export Functionality", 
-                    False, 
-                    f"Failed to export persona: {response.status_code} - {response.text}"
-                )
+            except Exception as e:
+                self.log_result("DELETE /api/segments/:id", False, f"Error: {str(e)}")
                 return False
-            
-            return True
-            
-        except Exception as e:
-            self.log_result("Export Functionality", False, f"Error: {str(e)}")
-            return False
+
+        # Test DELETE /api/workspaces/:id - Delete workspace (only if owner)
+        if self.workspace_id:
+            try:
+                response = self.make_request('DELETE', f'/workspaces/{self.workspace_id}')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'message' in data and 'deleted successfully' in data['message']:
+                        self.log_result("DELETE /api/workspaces/:id", True, 
+                                    "Successfully deleted workspace")
+                        return True
+                    else:
+                        self.log_result("DELETE /api/workspaces/:id", False, "Invalid response structure")
+                        return False
+                else:
+                    self.log_result("DELETE /api/workspaces/:id", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    return False
+            except Exception as e:
+                self.log_result("DELETE /api/workspaces/:id", False, f"Error: {str(e)}")
+                return False
+
+        return False
     
     def run_all_tests(self):
         """Run all backend tests in sequence"""
