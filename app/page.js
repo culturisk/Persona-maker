@@ -150,10 +150,17 @@ export default function App() {
   
   const [generatedPersona, setGeneratedPersona] = useState(null);
 
-  // Load workspaces on mount
+  // Authentication check
   useEffect(() => {
+    if (status === 'loading') return; // Still loading
+    
+    if (!session && !isDemoMode) {
+      router.push('/auth/signin');
+      return;
+    }
+    
     loadWorkspaces();
-  }, []);
+  }, [session, status, isDemoMode, router]);
 
   const loadWorkspaces = async () => {
     try {
