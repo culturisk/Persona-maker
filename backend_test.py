@@ -15,7 +15,7 @@ from datetime import datetime
 BASE_URL = "https://human-segments.preview.emergentagent.com/api"
 DEMO_MODE = True  # Test with demo mode fallback
 
-class BackendTester:
+class EnhancedBackendTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.session = requests.Session()
