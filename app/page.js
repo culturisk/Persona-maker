@@ -416,7 +416,15 @@ export default function App() {
                             <Badge variant={segment.economicProfile ? "default" : "secondary"}>
                               Economics {segment.economicProfile ? "✓" : "○"}
                             </Badge>
-                            <Badge variant={segment.personas?.length > 0 ? "default" : "secondary"}>
+                            <Badge 
+                              variant={segment.personas?.length > 0 ? "default" : "secondary"}
+                              className="cursor-pointer"
+                              onClick={() => {
+                                if (segment.personas?.length > 0) {
+                                  setViewingPersona(segment.personas[0]);
+                                }
+                              }}
+                            >
                               Personas ({segment.personas?.length || 0})
                             </Badge>
                           </div>
