@@ -142,10 +142,10 @@ model EconomicProfile {
 }
 
 model Persona {
-  id                String   @id @default(uuid())
-  segmentId         String   @map("segment_id")
-  cultureProfileId  String?  @map("culture_profile_id")
-  economicProfileId String?  @map("economic_profile_id")
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId         String   @map("segment_id") @db.ObjectId
+  cultureProfileId  String?  @map("culture_profile_id") @db.ObjectId
+  economicProfileId String?  @map("economic_profile_id") @db.ObjectId
   name              String
   positioning       String?
   culturalCues      Json?    @map("cultural_cues") // tone, examples, timings, channels
@@ -153,7 +153,7 @@ model Persona {
   generalizations   Json?    // testable hypotheses only
   pillars           Json?    // messaging pillars
   exportSnapshot    Json?    @map("export_snapshot")
-  createdBy         String   @map("created_by")
+  createdBy         String   @map("created_by") @db.ObjectId
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   // Relationships
