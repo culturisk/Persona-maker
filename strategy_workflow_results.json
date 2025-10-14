@@ -1,0 +1,67 @@
+{
+  "summary": {
+    "total_tests": 8,
+    "passed": 4,
+    "failed": 4,
+    "success_rate": 50.0,
+    "test_completed_at": "2025-10-14T16:44:54.347146"
+  },
+  "detailed_results": [
+    {
+      "test": "GET /api/workspaces",
+      "success": true,
+      "message": "Retrieved 2 workspaces, using workspace: 68ee7d6a5d192f23f7922f8b",
+      "timestamp": "2025-10-14T16:44:50.720870",
+      "response_data": null
+    },
+    {
+      "test": "POST /api/segments",
+      "success": true,
+      "message": "Created segment: Tech SMB Owners - High Price Sensitivity",
+      "timestamp": "2025-10-14T16:44:51.258162",
+      "response_data": null
+    },
+    {
+      "test": "GET /api/segments/{id}",
+      "success": true,
+      "message": "Successfully retrieved segment",
+      "timestamp": "2025-10-14T16:44:51.276641",
+      "response_data": null
+    },
+    {
+      "test": "POST /api/culture-profiles",
+      "success": false,
+      "message": "Failed with status: No response",
+      "timestamp": "2025-10-14T16:44:51.808891",
+      "response_data": null
+    },
+    {
+      "test": "POST /api/economic-profiles",
+      "success": true,
+      "message": "Created economic profile with income: \u20b91L-\u20b92L, price sensitivity: high",
+      "timestamp": "2025-10-14T16:44:52.346488",
+      "response_data": null
+    },
+    {
+      "test": "Persona Generation Setup",
+      "success": false,
+      "message": "Missing required profile IDs",
+      "timestamp": "2025-10-14T16:44:52.846616",
+      "response_data": null
+    },
+    {
+      "test": "Strategy Generation Setup",
+      "success": false,
+      "message": "No persona ID available",
+      "timestamp": "2025-10-14T16:44:53.346728",
+      "response_data": null
+    },
+    {
+      "test": "Export System Setup",
+      "success": false,
+      "message": "No persona ID available",
+      "timestamp": "2025-10-14T16:44:53.846847",
+      "response_data": null
+    }
+  ]
+}
