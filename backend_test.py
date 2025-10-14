@@ -867,7 +867,13 @@ class EnhancedBackendTester:
             self.test_validation_system,
             self.test_segment_crud_operations,
             self.test_permissions_system,
+            self.test_culture_economic_profiles,
             self.test_persona_operations,
+            self.test_strategy_generation_endpoints,
+            self.test_strategy_get_all_endpoint,
+            self.test_strategy_export_endpoints,
+            self.test_end_to_end_strategy_workflow,
+            self.test_persona_export_functionality,
             self.test_error_handling,
             self.test_cleanup_operations
         ]
