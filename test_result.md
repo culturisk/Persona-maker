@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the enhanced Human-Rooted Segmentation Studio with all the new features: Authentication System (NextAuth.js integration and demo mode fallback), Enhanced API Endpoints (all CRUD operations with validation), Validation System (blocked terms and ethical compliance), Permissions System (workspace access control and role-based permissions), User Management (user creation and workspace membership)."
+user_problem_statement: "Test the new Strategy Building functionality for the Human-Rooted Segmentation Studio: Phase 2 & 3 Strategy Testing including Strategy Generation API Endpoints, Strategy Export Endpoints, and End-to-End Strategy Workflow with cultural and economic adaptation."
 
 backend:
   - task: "Authentication System - NextAuth.js integration and demo mode fallback"
