@@ -1,129 +1,150 @@
 {
   "summary": {
-    "total_tests": 17,
-    "passed": 0,
-    "failed": 17,
-    "success_rate": 0.0,
-    "test_completed_at": "2025-10-14T16:37:11.151253"
+    "total_tests": 20,
+    "passed": 4,
+    "failed": 16,
+    "success_rate": 20.0,
+    "test_completed_at": "2025-10-14T16:41:03.774633"
   },
   "detailed_results": [
     {
       "test": "Demo Mode Authentication",
-      "success": false,
-      "message": "Failed with status: No response",
-      "timestamp": "2025-10-14T16:37:03.946214",
+      "success": true,
+      "message": "Successfully authenticated in demo mode, found 1 workspaces",
+      "timestamp": "2025-10-14T16:40:51.423441",
       "response_data": null
     },
     {
       "test": "GET /api/workspaces",
+      "success": true,
+      "message": "Retrieved 1 workspaces",
+      "timestamp": "2025-10-14T16:40:51.954619",
+      "response_data": null
+    },
+    {
+      "test": "POST /api/workspaces (Valid)",
       "success": false,
       "message": "Failed with status: No response",
-      "timestamp": "2025-10-14T16:37:04.476371",
+      "timestamp": "2025-10-14T16:40:51.974637",
       "response_data": null
     },
     {
       "test": "Blocked Term Validation (exclude)",
       "success": false,
       "message": "Should have blocked term 'exclude', got status: No response",
-      "timestamp": "2025-10-14T16:37:05.009455",
+      "timestamp": "2025-10-14T16:40:52.499540",
       "response_data": null
     },
     {
       "test": "Blocked Term Validation (race)",
       "success": false,
       "message": "Should have blocked term 'race', got status: No response",
-      "timestamp": "2025-10-14T16:37:05.026799",
+      "timestamp": "2025-10-14T16:40:52.516288",
       "response_data": null
     },
     {
       "test": "Blocked Term Validation (religion)",
       "success": false,
       "message": "Should have blocked term 'religion', got status: No response",
-      "timestamp": "2025-10-14T16:37:05.042111",
+      "timestamp": "2025-10-14T16:40:52.531318",
       "response_data": null
     },
     {
       "test": "Blocked Term Validation (caste)",
       "success": false,
       "message": "Should have blocked term 'caste', got status: No response",
-      "timestamp": "2025-10-14T16:37:05.075792",
+      "timestamp": "2025-10-14T16:40:52.570381",
       "response_data": null
     },
     {
-      "test": "Segment CRUD Setup",
+      "test": "POST /api/segments (Valid)",
       "success": false,
-      "message": "No workspace ID available for segment testing",
-      "timestamp": "2025-10-14T16:37:05.575919",
+      "message": "Failed with status: No response",
+      "timestamp": "2025-10-14T16:40:53.095770",
       "response_data": null
     },
     {
       "test": "Workspace Access Control",
       "success": false,
       "message": "Should have returned 403, got: No response",
-      "timestamp": "2025-10-14T16:37:06.107893",
+      "timestamp": "2025-10-14T16:40:53.623985",
+      "response_data": null
+    },
+    {
+      "test": "Segment Access Permissions",
+      "success": true,
+      "message": "Successfully accessed segments in owned workspace",
+      "timestamp": "2025-10-14T16:40:53.640130",
       "response_data": null
     },
     {
       "test": "Profile Operations Setup",
       "success": false,
       "message": "No segment ID available for profile testing",
-      "timestamp": "2025-10-14T16:37:06.608014",
+      "timestamp": "2025-10-14T16:40:54.140258",
       "response_data": null
     },
     {
       "test": "Persona Operations Setup",
       "success": false,
       "message": "No segment ID available for persona testing",
-      "timestamp": "2025-10-14T16:37:07.108124",
+      "timestamp": "2025-10-14T16:40:54.640373",
       "response_data": null
     },
     {
       "test": "Strategy Generation Setup",
       "success": false,
       "message": "No persona ID available for strategy testing",
-      "timestamp": "2025-10-14T16:37:07.608238",
+      "timestamp": "2025-10-14T16:40:55.140561",
       "response_data": null
     },
     {
       "test": "Get All Strategies Setup",
       "success": false,
       "message": "No persona ID available for strategy testing",
-      "timestamp": "2025-10-14T16:37:08.108348",
+      "timestamp": "2025-10-14T16:40:55.640677",
       "response_data": null
     },
     {
       "test": "Strategy Export Setup",
       "success": false,
       "message": "No persona ID available for export testing",
-      "timestamp": "2025-10-14T16:37:08.608459",
+      "timestamp": "2025-10-14T16:40:56.140801",
       "response_data": null
     },
     {
       "test": "E2E Workflow - Segment",
       "success": false,
       "message": "No segment available",
-      "timestamp": "2025-10-14T16:37:09.108568",
+      "timestamp": "2025-10-14T16:40:56.664713",
       "response_data": null
     },
     {
       "test": "Persona Export Setup",
       "success": false,
       "message": "No persona ID available for export testing",
-      "timestamp": "2025-10-14T16:37:09.608694",
+      "timestamp": "2025-10-14T16:40:57.164830",
       "response_data": null
     },
     {
       "test": "404 Error Handling",
       "success": false,
       "message": "Should have returned 404, got: No response",
-      "timestamp": "2025-10-14T16:37:10.136358",
+      "timestamp": "2025-10-14T16:41:02.074742",
       "response_data": null
     },
     {
       "test": "Invalid UUID Handling",
       "success": false,
       "message": "Should have returned error, got: No response",
-      "timestamp": "2025-10-14T16:37:10.150850",
+      "timestamp": "2025-10-14T16:41:02.743362",
+      "response_data": null
+    },
+    {
+      "test": "DELETE /api/workspaces/:id",
+      "success": true,
+      "message": "Successfully deleted workspace",
+      "timestamp": "2025-10-14T16:41:03.274287",
       "response_data": null
     }
   ]
