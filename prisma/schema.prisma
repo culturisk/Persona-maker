@@ -18,10 +18,13 @@ model User {
   createdAt  DateTime @default(now()) @map("created_at")
 
   // Relationships
-  ownedWorkspaces     Workspace[]      @relation("WorkspaceOwner")
-  workspaceMemberships WorkspaceMember[]
-  createdSegments     Segment[]        @relation("SegmentCreator")
-  createdPersonas     Persona[]        @relation("PersonaCreator")
+  ownedWorkspaces        Workspace[]           @relation("WorkspaceOwner")
+  workspaceMemberships   WorkspaceMember[]
+  createdSegments        Segment[]             @relation("SegmentCreator")
+  createdPersonas        Persona[]             @relation("PersonaCreator")
+  createdPositioningStrategies PositioningStrategy[] @relation("PositioningCreator")
+  createdMessagingStrategies   MessagingStrategy[]   @relation("MessagingCreator")
+  createdPricingStrategies     PricingStrategy[]     @relation("PricingCreator")
 
   @@map("users")
 }
