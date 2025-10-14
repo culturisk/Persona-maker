@@ -112,8 +112,8 @@ model CultureProfile {
 }
 
 model EconomicProfile {
-  id                        String   @id @default(uuid())
-  segmentId                 String   @unique @map("segment_id")
+  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId                 String   @unique @map("segment_id") @db.ObjectId
   incomeBracket             String?  @map("income_bracket") // e.g., "<₹25k", "₹25k–₹50k", "₹50k–₹1L", "₹1L–₹2L", "₹2L+"
   currency                  String?  @default("INR") // ISO 4217 (INR, USD, etc.)
   profession                String?  // student, junior staff, team lead, manager, CXO, gig/freelancer, self-employed, SME owner
