@@ -223,8 +223,8 @@ model MessagingStrategy {
 }
 
 model PricingStrategy {
-  id                     String   @id @default(uuid())
-  personaId              String   @map("persona_id")
+  id                     String   @id @default(auto()) @map("_id") @db.ObjectId
+  personaId              String   @map("persona_id") @db.ObjectId
   version                Int      @default(1)
   status                 String   @default("draft") // draft | published
   pricingTiers           Json?    @map("pricing_tiers") // 2-4 tiers with features and prices
@@ -235,7 +235,7 @@ model PricingStrategy {
   discountStrategy       Json?    @map("discount_strategy") // When and how to discount
   inputs                 Json?    // Original inputs used for generation
   assumptionsVsFacts     Json?    @map("assumptions_vs_facts")
-  createdBy              String   @map("created_by")
+  createdBy              String   @map("created_by") @db.ObjectId
   createdAt              DateTime @default(now()) @map("created_at")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
