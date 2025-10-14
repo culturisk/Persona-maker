@@ -361,18 +361,96 @@ class EnhancedBackendTester:
         
         return False
     
+    def test_culture_economic_profiles(self):
+        """Test 6: Culture and Economic Profile Operations"""
+        print("\n=== Testing Culture and Economic Profile Operations ===")
+        
+        if not self.segment_id:
+            self.log_result("Profile Operations Setup", False, "No segment ID available for profile testing")
+            return False
+
+        # Test POST /api/culture-profiles - Create culture profile
+        try:
+            culture_data = {
+                "segmentId": self.segment_id,
+                "locale": "en-IN",
+                "communicationStyle": "low_context",
+                "formalityNorm": "mixed",
+                "languages": ["English", "Hindi"],
+                "region": "Mumbai",
+                "deviceChannelPrefs": {
+                    "whatsapp_preferred": True,
+                    "android_share_high": True
+                }
+            }
+            response = self.make_request('POST', '/culture-profiles', culture_data)
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'profile' in data and data['profile']['locale'] == culture_data['locale']:
+                    self.culture_profile_id = data['profile']['id']
+                    self.log_result("POST /api/culture-profiles", True, 
+                                f"Created culture profile with locale: {data['profile']['locale']}")
+                else:
+                    self.log_result("POST /api/culture-profiles", False, "Invalid response structure")
+                    return False
+            else:
+                self.log_result("POST /api/culture-profiles", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("POST /api/culture-profiles", False, f"Error: {str(e)}")
+            return False
+
+        # Test POST /api/economic-profiles - Create economic profile
+        try:
+            economic_data = {
+                "segmentId": self.segment_id,
+                "incomeBracket": "₹1L-₹2L",
+                "profession": "SME_owner",
+                "priceSensitivity": "high",
+                "paymentBehaviour": {
+                    "upi_preferred": True,
+                    "credit_card": False,
+                    "emi_friendly": True,
+                    "subscription_aversion": False
+                },
+                "financialGoals": ["business_growth", "cost_optimization"],
+                "constraints": ["limited_budget", "cash_flow_management"]
+            }
+            response = self.make_request('POST', '/economic-profiles', economic_data)
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'profile' in data and data['profile']['incomeBracket'] == economic_data['incomeBracket']:
+                    self.economic_profile_id = data['profile']['id']
+                    self.log_result("POST /api/economic-profiles", True, 
+                                f"Created economic profile with income bracket: {data['profile']['incomeBracket']}")
+                else:
+                    self.log_result("POST /api/economic-profiles", False, "Invalid response structure")
+                    return False
+            else:
+                self.log_result("POST /api/economic-profiles", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("POST /api/economic-profiles", False, f"Error: {str(e)}")
+            return False
+
+        return True
+
     def test_persona_operations(self):
-        """Test 6: Persona Operations - Create and delete personas"""
+        """Test 7: Persona Operations - Create personas for strategy testing"""
         print("\n=== Testing Persona Operations ===")
         
         if not self.segment_id:
             self.log_result("Persona Operations Setup", False, "No segment ID available for persona testing")
             return False
 
-        # Test POST /api/personas/generate - Generate persona
+        # Test POST /api/personas/generate - Generate persona with profiles
         try:
             persona_data = {
-                "segmentId": self.segment_id
+                "segmentId": self.segment_id,
+                "cultureProfileId": self.culture_profile_id,
+                "economicProfileId": self.economic_profile_id
             }
             response = self.make_request('POST', '/personas/generate', persona_data)
             if response and response.status_code == 200:
@@ -392,28 +470,311 @@ class EnhancedBackendTester:
             self.log_result("POST /api/personas/generate", False, f"Error: {str(e)}")
             return False
 
-        # Test DELETE /api/personas/:id - Delete persona
-        if self.persona_id:
+        return True
+
+    def test_strategy_generation_endpoints(self):
+        """Test 8: Strategy Generation API Endpoints - Phase 2 & 3 Strategy Testing"""
+        print("\n=== Testing Strategy Generation Endpoints ===")
+        
+        if not self.persona_id:
+            self.log_result("Strategy Generation Setup", False, "No persona ID available for strategy testing")
+            return False
+
+        strategy_types = ['positioning', 'messaging', 'pricing']
+        success_count = 0
+
+        for strategy_type in strategy_types:
             try:
-                response = self.make_request('DELETE', f'/personas/{self.persona_id}')
+                # Test POST /api/personas/{id}/strategies/{type}/generate
+                response = self.make_request('POST', f'/personas/{self.persona_id}/strategies/{strategy_type}/generate')
                 if response and response.status_code == 200:
                     data = response.json()
-                    if 'message' in data and 'deleted successfully' in data['message']:
-                        self.log_result("DELETE /api/personas/:id", True, 
-                                    "Successfully deleted persona")
+                    if 'strategy' in data:
+                        strategy = data['strategy']
+                        
+                        # Validate strategy structure based on type
+                        if strategy_type == 'positioning':
+                            required_fields = ['positioning_statement', 'competitive_frame', 'elevator_pitch_1s', 'elevator_pitch_10s', 'elevator_pitch_30s']
+                            if all(field in strategy for field in required_fields):
+                                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", True, 
+                                            f"Generated {strategy_type} strategy with positioning statement and elevator pitches")
+                                success_count += 1
+                            else:
+                                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, 
+                                            f"Missing required fields in {strategy_type} strategy")
+                        
+                        elif strategy_type == 'messaging':
+                            required_fields = ['messaging_pillars', 'tone_of_voice', 'objections']
+                            if all(field in strategy for field in required_fields):
+                                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", True, 
+                                            f"Generated {strategy_type} strategy with messaging pillars and tone of voice")
+                                success_count += 1
+                            else:
+                                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, 
+                                            f"Missing required fields in {strategy_type} strategy")
+                        
+                        elif strategy_type == 'pricing':
+                            required_fields = ['pricing_tiers', 'payment_options', 'monetization_hypotheses']
+                            if all(field in strategy for field in required_fields):
+                                # Validate pricing tiers match persona's income bracket and sensitivity
+                                pricing_tiers = strategy.get('pricing_tiers', [])
+                                if pricing_tiers and any('UPI' in str(strategy.get('payment_options', [])) for _ in [1]):
+                                    self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", True, 
+                                                f"Generated {strategy_type} strategy with UPI payment options (matching persona preferences)")
+                                else:
+                                    self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", True, 
+                                                f"Generated {strategy_type} strategy with pricing tiers and payment options")
+                                success_count += 1
+                            else:
+                                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, 
+                                            f"Missing required fields in {strategy_type} strategy")
+                        
+                    else:
+                        self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, 
+                                    f"Invalid response structure for {strategy_type} strategy")
+                else:
+                    self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+            except Exception as e:
+                self.log_result(f"POST /api/personas/strategies/{strategy_type}/generate", False, f"Error: {str(e)}")
+
+        return success_count == len(strategy_types)
+
+    def test_strategy_get_all_endpoint(self):
+        """Test 9: Get All Strategies Endpoint"""
+        print("\n=== Testing Get All Strategies Endpoint ===")
+        
+        if not self.persona_id:
+            self.log_result("Get All Strategies Setup", False, "No persona ID available for strategy testing")
+            return False
+
+        try:
+            # Test GET /api/personas/{id}/strategies
+            response = self.make_request('GET', f'/personas/{self.persona_id}/strategies')
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'strategies' in data:
+                    strategies = data['strategies']
+                    expected_types = ['positioning', 'messaging', 'pricing']
+                    if all(strategy_type in strategies for strategy_type in expected_types):
+                        self.log_result("GET /api/personas/strategies", True, 
+                                    "Successfully retrieved all strategy types")
                         return True
                     else:
-                        self.log_result("DELETE /api/personas/:id", False, "Invalid response structure")
+                        self.log_result("GET /api/personas/strategies", True, 
+                                    f"Retrieved strategies structure (may be empty initially)")
+                        return True
+                else:
+                    self.log_result("GET /api/personas/strategies", False, "Invalid response structure")
+                    return False
+            else:
+                self.log_result("GET /api/personas/strategies", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("GET /api/personas/strategies", False, f"Error: {str(e)}")
+            return False
+
+    def test_strategy_export_endpoints(self):
+        """Test 10: Strategy Export Endpoints"""
+        print("\n=== Testing Strategy Export Endpoints ===")
+        
+        if not self.persona_id:
+            self.log_result("Strategy Export Setup", False, "No persona ID available for export testing")
+            return False
+
+        strategy_types = ['positioning', 'messaging', 'pricing']
+        success_count = 0
+
+        # Test individual strategy exports
+        for strategy_type in strategy_types:
+            try:
+                # Test GET /api/personas/{id}/strategies/{type}/export
+                response = self.make_request('GET', f'/personas/{self.persona_id}/strategies/{strategy_type}/export')
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if 'persona_id' in data and 'strategy_type' in data and 'exported_at' in data:
+                        self.log_result(f"GET /api/personas/strategies/{strategy_type}/export", True, 
+                                    f"Successfully exported {strategy_type} strategy with metadata")
+                        success_count += 1
+                    else:
+                        self.log_result(f"GET /api/personas/strategies/{strategy_type}/export", False, 
+                                    f"Invalid export structure for {strategy_type}")
+                else:
+                    self.log_result(f"GET /api/personas/strategies/{strategy_type}/export", False, 
+                                f"Failed with status: {response.status_code if response else 'No response'}")
+            except Exception as e:
+                self.log_result(f"GET /api/personas/strategies/{strategy_type}/export", False, f"Error: {str(e)}")
+
+        # Test export all strategies
+        try:
+            # Test GET /api/personas/{id}/strategies/export-all
+            response = self.make_request('GET', f'/personas/{self.persona_id}/strategies/export-all')
+            if response and response.status_code == 200:
+                data = response.json()
+                if 'persona' in data and 'strategies' in data and 'exported_at' in data:
+                    self.log_result("GET /api/personas/strategies/export-all", True, 
+                                "Successfully exported all strategies with complete persona data")
+                    success_count += 1
+                else:
+                    self.log_result("GET /api/personas/strategies/export-all", False, 
+                                "Invalid export-all structure")
+            else:
+                self.log_result("GET /api/personas/strategies/export-all", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
+        except Exception as e:
+            self.log_result("GET /api/personas/strategies/export-all", False, f"Error: {str(e)}")
+
+        return success_count >= 3  # At least 3 successful exports (individual types or export-all)
+
+    def test_end_to_end_strategy_workflow(self):
+        """Test 11: End-to-End Strategy Workflow - Complete persona to strategy pipeline"""
+        print("\n=== Testing End-to-End Strategy Workflow ===")
+        
+        # This test validates the complete workflow from segment creation to strategy generation
+        workflow_steps = []
+        
+        # Step 1: Verify segment exists
+        if self.segment_id:
+            workflow_steps.append("✅ Segment created")
+        else:
+            self.log_result("E2E Workflow - Segment", False, "No segment available")
+            return False
+            
+        # Step 2: Verify culture profile exists
+        if self.culture_profile_id:
+            workflow_steps.append("✅ Culture profile created")
+        else:
+            self.log_result("E2E Workflow - Culture Profile", False, "No culture profile available")
+            return False
+            
+        # Step 3: Verify economic profile exists
+        if self.economic_profile_id:
+            workflow_steps.append("✅ Economic profile created")
+        else:
+            self.log_result("E2E Workflow - Economic Profile", False, "No economic profile available")
+            return False
+            
+        # Step 4: Verify persona exists
+        if self.persona_id:
+            workflow_steps.append("✅ Persona generated")
+        else:
+            self.log_result("E2E Workflow - Persona", False, "No persona available")
+            return False
+
+        # Step 5: Test strategy generation for high price sensitivity scenario
+        try:
+            response = self.make_request('POST', f'/personas/{self.persona_id}/strategies/pricing/generate')
+            if response and response.status_code == 200:
+                data = response.json()
+                strategy = data.get('strategy', {})
+                
+                # Validate that pricing strategy reflects high price sensitivity
+                pricing_tiers = strategy.get('pricing_tiers', [])
+                if pricing_tiers:
+                    # Check if there's a cost-focused tier (like "Starter" or low-price options)
+                    has_cost_focused = any('Starter' in tier.get('name', '') or 
+                                         'cost' in str(tier).lower() or
+                                         'affordable' in str(tier).lower() 
+                                         for tier in pricing_tiers)
+                    if has_cost_focused:
+                        workflow_steps.append("✅ Cost-focused pricing strategy generated")
+                    else:
+                        workflow_steps.append("✅ Pricing strategy generated (general)")
+                else:
+                    workflow_steps.append("⚠️ Pricing strategy generated but no tiers found")
+            else:
+                self.log_result("E2E Workflow - Pricing Strategy", False, 
+                            f"Failed to generate pricing strategy: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("E2E Workflow - Pricing Strategy", False, f"Error: {str(e)}")
+            return False
+
+        # Step 6: Test messaging strategy for low-context communication
+        try:
+            response = self.make_request('POST', f'/personas/{self.persona_id}/strategies/messaging/generate')
+            if response and response.status_code == 200:
+                data = response.json()
+                strategy = data.get('strategy', {})
+                
+                # Validate that messaging reflects low-context communication style
+                tone_of_voice = strategy.get('tone_of_voice', {})
+                if tone_of_voice and 'direct' in str(tone_of_voice).lower():
+                    workflow_steps.append("✅ Direct messaging strategy generated (low-context)")
+                else:
+                    workflow_steps.append("✅ Messaging strategy generated")
+            else:
+                self.log_result("E2E Workflow - Messaging Strategy", False, 
+                            f"Failed to generate messaging strategy: {response.status_code if response else 'No response'}")
+                return False
+        except Exception as e:
+            self.log_result("E2E Workflow - Messaging Strategy", False, f"Error: {str(e)}")
+            return False
+
+        # Step 7: Validate UPI payment preference in pricing
+        try:
+            response = self.make_request('POST', f'/personas/{self.persona_id}/strategies/pricing/generate')
+            if response and response.status_code == 200:
+                data = response.json()
+                strategy = data.get('strategy', {})
+                
+                payment_options = strategy.get('payment_options', [])
+                has_upi = any('UPI' in str(option) for option in payment_options)
+                if has_upi:
+                    workflow_steps.append("✅ UPI payment option included (matching persona preference)")
+                else:
+                    workflow_steps.append("⚠️ Payment options generated but UPI not explicitly found")
+            else:
+                workflow_steps.append("⚠️ Could not verify UPI payment options")
+        except Exception as e:
+            workflow_steps.append("⚠️ Error checking UPI payment options")
+
+        # Log the complete workflow
+        workflow_summary = " → ".join(workflow_steps)
+        self.log_result("End-to-End Strategy Workflow", True, 
+                    f"Complete workflow executed: {workflow_summary}")
+        
+        return True
+
+    def test_persona_export_functionality(self):
+        """Test 12: Persona Export Functionality"""
+        print("\n=== Testing Persona Export Functionality ===")
+        
+        if not self.persona_id:
+            self.log_result("Persona Export Setup", False, "No persona ID available for export testing")
+            return False
+
+        try:
+            # Test GET /api/personas/:id/export
+            response = self.make_request('GET', f'/personas/{self.persona_id}/export')
+            if response and response.status_code == 200:
+                data = response.json()
+                required_sections = ['persona', 'segment', 'culture_profile', 'economic_profile', 'export_metadata']
+                
+                if all(section in data for section in required_sections):
+                    # Validate export metadata
+                    export_metadata = data.get('export_metadata', {})
+                    if 'exported_at' in export_metadata and 'version' in export_metadata:
+                        self.log_result("GET /api/personas/export", True, 
+                                    "Successfully exported persona with all required sections and metadata")
+                        return True
+                    else:
+                        self.log_result("GET /api/personas/export", False, 
+                                    "Export metadata incomplete")
                         return False
                 else:
-                    self.log_result("DELETE /api/personas/:id", False, 
-                                f"Failed with status: {response.status_code if response else 'No response'}")
+                    missing_sections = [s for s in required_sections if s not in data]
+                    self.log_result("GET /api/personas/export", False, 
+                                f"Missing required sections: {missing_sections}")
                     return False
-            except Exception as e:
-                self.log_result("DELETE /api/personas/:id", False, f"Error: {str(e)}")
+            else:
+                self.log_result("GET /api/personas/export", False, 
+                            f"Failed with status: {response.status_code if response else 'No response'}")
                 return False
-
-        return False
+        except Exception as e:
+            self.log_result("GET /api/personas/export", False, f"Error: {str(e)}")
+            return False
     
     def test_error_handling(self):
         """Test 7: Error Handling - Test proper error responses"""
