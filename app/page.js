@@ -1132,7 +1132,11 @@ export default function App() {
                 <Button variant="outline" onClick={() => setActiveStep('economics')}>
                   Back
                 </Button>
-                <Button onClick={() => {
+                <Button onClick={() => setViewingPersona(generatedPersona)}>
+                  <Target className="w-4 h-4 mr-2" />
+                  View Strategies
+                </Button>
+                <Button variant="outline" onClick={() => {
                   setGeneratedPersona(null);
                   setActiveStep('workspace');
                 }}>
