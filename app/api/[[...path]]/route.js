@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma, getOrCreateUser } from '../../../lib/database.js';
 import { personaAI } from '../../../lib/ai.js';
+import { strategyAI } from '../../../lib/strategy-ai.js';
 import { getCurrentUser, canAccessWorkspace, hasPermission, PERMISSIONS } from '../../../lib/auth-utils.js';
 import { 
   validateSegmentForm, 
   validateCultureForm, 
   validateEconomicForm,
-  validateWorkspaceForm,
   validateContent 
 } from '../../../lib/validation.js';
 
@@ -253,99 +253,6 @@ async function getSegmentById(segmentId, request) {
   }
 }
 
-// DELETE /api/personas/:id - Delete persona
-async function deletePersona(request, personaId) {
-  try {
-    const user = await getCurrentUserOrMock(request);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get persona to check permissions
-    const persona = await prisma.persona.findUnique({
-      where: { id: personaId },
-      include: { segment: { select: { workspaceId: true } } }
-    });
-
-    if (!persona) {
-      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
-    }
-
-    const canAccess = await canAccessWorkspace(user.id, persona.segment.workspaceId, 'member');
-    if (!canAccess) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    await prisma.persona.delete({
-      where: { id: personaId }
-    });
-
-    return NextResponse.json({ message: 'Persona deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting persona:', error);
-    return NextResponse.json({ error: 'Failed to delete persona' }, { status: 500 });
-  }
-}
-
-// Update functions for profiles
-async function updateCultureProfile(request, profileId) {
-  try {
-    const data = await request.json();
-    const user = await getCurrentUserOrMock(request);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const validation = validateCultureForm(data);
-    if (!validation.success) {
-      return NextResponse.json({ 
-        error: validation.error,
-        issues: validation.issues 
-      }, { status: 400 });
-    }
-    
-    const profile = await prisma.cultureProfile.update({
-      where: { id: profileId },
-      data: validation.data
-    });
-    
-    return NextResponse.json({ profile });
-  } catch (error) {
-    console.error('Error updating culture profile:', error);
-    return NextResponse.json({ error: 'Failed to update culture profile' }, { status: 500 });
-  }
-}
-
-async function updateEconomicProfile(request, profileId) {
-  try {
-    const data = await request.json();
-    const user = await getCurrentUserOrMock(request);
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const validation = validateEconomicForm(data);
-    if (!validation.success) {
-      return NextResponse.json({ 
-        error: validation.error,
-        issues: validation.issues 
-      }, { status: 400 });
-    }
-    
-    const profile = await prisma.economicProfile.update({
-      where: { id: profileId },
-      data: validation.data
-    });
-    
-    return NextResponse.json({ profile });
-  } catch (error) {
-    console.error('Error updating economic profile:', error);
-    return NextResponse.json({ error: 'Failed to update economic profile' }, { status: 500 });
-  }
-}
-
 // POST /api/segments - Create new segment
 async function createSegment(request) {
   try {
@@ -483,11 +390,24 @@ async function deleteSegment(request, segmentId) {
 async function createCultureProfile(request) {
   try {
     const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateCultureForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
     
     const profile = await prisma.cultureProfile.upsert({
-      where: { segmentId: data.segmentId },
-      update: data,
-      create: data
+      where: { segmentId: validation.data.segmentId },
+      update: validation.data,
+      create: validation.data
     });
     
     return NextResponse.json({ profile });
@@ -501,11 +421,24 @@ async function createCultureProfile(request) {
 async function createEconomicProfile(request) {
   try {
     const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateEconomicForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
     
     const profile = await prisma.economicProfile.upsert({
-      where: { segmentId: data.segmentId },
-      update: data,
-      create: data
+      where: { segmentId: validation.data.segmentId },
+      update: validation.data,
+      create: validation.data
     });
     
     return NextResponse.json({ profile });
@@ -515,11 +448,74 @@ async function createEconomicProfile(request) {
   }
 }
 
+// Update functions for profiles
+async function updateCultureProfile(request, profileId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateCultureForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const profile = await prisma.cultureProfile.update({
+      where: { id: profileId },
+      data: validation.data
+    });
+    
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error('Error updating culture profile:', error);
+    return NextResponse.json({ error: 'Failed to update culture profile' }, { status: 500 });
+  }
+}
+
+async function updateEconomicProfile(request, profileId) {
+  try {
+    const data = await request.json();
+    const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const validation = validateEconomicForm(data);
+    if (!validation.success) {
+      return NextResponse.json({ 
+        error: validation.error,
+        issues: validation.issues 
+      }, { status: 400 });
+    }
+    
+    const profile = await prisma.economicProfile.update({
+      where: { id: profileId },
+      data: validation.data
+    });
+    
+    return NextResponse.json({ profile });
+  } catch (error) {
+    console.error('Error updating economic profile:', error);
+    return NextResponse.json({ error: 'Failed to update economic profile' }, { status: 500 });
+  }
+}
+
 // POST /api/personas/generate - Generate persona using AI
 async function generatePersona(request) {
   try {
     const { segmentId, cultureProfileId, economicProfileId } = await request.json();
     const user = await getCurrentUserOrMock(request);
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     // Fetch required data
     const segment = await prisma.segment.findUnique({
@@ -565,9 +561,192 @@ async function generatePersona(request) {
   }
 }
 
-// GET /api/personas/:id/export - Export persona as JSON
-async function exportPersona(personaId) {
+// DELETE /api/personas/:id - Delete persona
+async function deletePersona(request, personaId) {
   try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get persona to check permissions
+    const persona = await prisma.persona.findUnique({
+      where: { id: personaId },
+      include: { segment: { select: { workspaceId: true } } }
+    });
+
+    if (!persona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    const canAccess = await canAccessWorkspace(user.id, persona.segment.workspaceId, 'member');
+    if (!canAccess) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    await prisma.persona.delete({
+      where: { id: personaId }
+    });
+
+    return NextResponse.json({ message: 'Persona deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting persona:', error);
+    return NextResponse.json({ error: 'Failed to delete persona' }, { status: 500 });
+  }
+}
+
+// Strategy endpoints
+async function getPersonaStrategies(request, personaId) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // For now, return empty strategies since we're storing them as JSON
+    // In a full implementation, this would fetch from strategy tables
+    return NextResponse.json({ 
+      strategies: {
+        positioning: null,
+        messaging: null,
+        pricing: null
+      },
+      versions: {}
+    });
+  } catch (error) {
+    console.error('Error fetching persona strategies:', error);
+    return NextResponse.json({ error: 'Failed to fetch strategies' }, { status: 500 });
+  }
+}
+
+async function generatePersonaStrategy(request, personaId, strategyType) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch persona and related data
+    const persona = await prisma.persona.findUnique({
+      where: { id: personaId },
+      include: {
+        segment: true,
+        cultureProfile: true,
+        economicProfile: true
+      }
+    });
+
+    if (!persona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    let strategy;
+    
+    switch (strategyType) {
+      case 'positioning':
+        strategy = await strategyAI.generatePositioningStrategy(
+          persona, persona.segment, persona.cultureProfile, persona.economicProfile
+        );
+        break;
+      case 'messaging':
+        strategy = await strategyAI.generateMessagingStrategy(
+          persona, persona.segment, persona.cultureProfile, persona.economicProfile
+        );
+        break;
+      case 'pricing':
+        strategy = await strategyAI.generatePricingStrategy(
+          persona, persona.segment, persona.cultureProfile, persona.economicProfile
+        );
+        break;
+      default:
+        return NextResponse.json({ error: 'Invalid strategy type' }, { status: 400 });
+    }
+
+    return NextResponse.json({ strategy });
+  } catch (error) {
+    console.error('Error generating strategy:', error);
+    return NextResponse.json({ error: 'Failed to generate strategy' }, { status: 500 });
+  }
+}
+
+async function exportPersonaStrategy(request, personaId, strategyType) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // For now, return a mock export
+    const exportData = {
+      persona_id: personaId,
+      strategy_type: strategyType,
+      exported_at: new Date().toISOString(),
+      data: {
+        message: `${strategyType} strategy export placeholder`,
+        note: 'This would contain the actual strategy data in a full implementation'
+      }
+    };
+
+    return NextResponse.json(exportData);
+  } catch (error) {
+    console.error('Error exporting strategy:', error);
+    return NextResponse.json({ error: 'Failed to export strategy' }, { status: 500 });
+  }
+}
+
+async function exportAllPersonaStrategies(request, personaId) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const persona = await prisma.persona.findUnique({
+      where: { id: personaId },
+      include: {
+        segment: true,
+        cultureProfile: true,
+        economicProfile: true
+      }
+    });
+
+    if (!persona) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+
+    const exportData = {
+      persona: {
+        id: persona.id,
+        name: persona.name,
+        positioning: persona.positioning
+      },
+      segment: persona.segment,
+      culture_profile: persona.cultureProfile,
+      economic_profile: persona.economicProfile,
+      strategies: {
+        positioning: null, // Would fetch actual strategy data
+        messaging: null,
+        pricing: null
+      },
+      exported_at: new Date().toISOString(),
+      version: '1.0.0'
+    };
+
+    return NextResponse.json(exportData);
+  } catch (error) {
+    console.error('Error exporting all strategies:', error);
+    return NextResponse.json({ error: 'Failed to export strategies' }, { status: 500 });
+  }
+}
+
+// GET /api/personas/:id/export - Export persona as JSON
+async function exportPersona(personaId, request) {
+  try {
+    const user = await getCurrentUserOrMock(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const persona = await prisma.persona.findUnique({
       where: { id: personaId },
       include: {
@@ -607,7 +786,7 @@ async function exportPersona(personaId) {
   }
 }
 
-// Route handler
+// Route handlers
 export async function GET(request) {
   const { pathname } = new URL(request.url);
   const segments = pathname.split('/').filter(Boolean);
@@ -621,13 +800,53 @@ export async function GET(request) {
       }
     } else if (segments[1] === 'segments' && segments.length === 3) {
       return await getSegmentById(segments[2], request);
-    } else if (segments[1] === 'personas' && segments[3] === 'export') {
-      return await exportPersona(segments[2], request);
+    } else if (segments[1] === 'personas') {
+      if (segments[3] === 'export') {
+        return await exportPersona(segments[2], request);
+      } else if (segments[3] === 'strategies') {
+        if (segments.length === 4) {
+          return await getPersonaStrategies(request, segments[2]);
+        } else if (segments[4] === 'export-all') {
+          return await exportAllPersonaStrategies(request, segments[2]);
+        } else if (segments[5] === 'export') {
+          return await exportPersonaStrategy(request, segments[2], segments[4]);
+        }
+      }
     }
     
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   } catch (error) {
     console.error('GET request error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(request) {
+  const { pathname } = new URL(request.url);
+  const segments = pathname.split('/').filter(Boolean);
+  
+  try {
+    if (segments[1] === 'workspaces' && segments.length === 2) {
+      return await createWorkspace(request);
+    } else if (segments[1] === 'segments') {
+      return await createSegment(request);
+    } else if (segments[1] === 'culture-profiles') {
+      return await createCultureProfile(request);
+    } else if (segments[1] === 'economic-profiles') {
+      return await createEconomicProfile(request);
+    } else if (segments[1] === 'personas') {
+      if (segments[2] === 'generate') {
+        return await generatePersona(request);
+      } else if (segments[3] === 'strategies') {
+        if (segments[5] === 'generate') {
+          return await generatePersonaStrategy(request, segments[2], segments[4]);
+        }
+      }
+    }
+    
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  } catch (error) {
+    console.error('POST request error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -673,29 +892,3 @@ export async function DELETE(request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-export async function POST(request) {
-  const { pathname } = new URL(request.url);
-  const segments = pathname.split('/').filter(Boolean);
-  
-  try {
-    if (segments[1] === 'workspaces' && segments.length === 2) {
-      return await createWorkspace(request);
-    } else if (segments[1] === 'segments') {
-      return await createSegment(request);
-    } else if (segments[1] === 'culture-profiles') {
-      return await createCultureProfile(request);
-    } else if (segments[1] === 'economic-profiles') {
-      return await createEconomicProfile(request);
-    } else if (segments[1] === 'personas' && segments[2] === 'generate') {
-      return await generatePersona(request);
-    }
-    
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  } catch (error) {
-    console.error('POST request error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
-// Duplicate handlers removed - using the ones above
