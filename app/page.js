@@ -1170,6 +1170,28 @@ export default function App() {
     );
   }
 
+  // Show persona detail if viewing persona
+  if (viewingPersona) {
+    return (
+      <div className="min-h-screen bg-background">
+        <WorkspaceHeader 
+          workspace={currentWorkspace} 
+          onWorkspaceChange={(workspace) => {
+            setCurrentWorkspace(workspace);
+            loadSegments(workspace.id);
+          }}
+        />
+        
+        <div className="container mx-auto py-8">
+          <PersonaDetail 
+            persona={viewingPersona} 
+            onBack={() => setViewingPersona(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <WorkspaceHeader 
