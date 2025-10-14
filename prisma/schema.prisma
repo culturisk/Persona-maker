@@ -157,10 +157,13 @@ model Persona {
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   // Relationships
-  segment         Segment          @relation(fields: [segmentId], references: [id], onDelete: Cascade)
-  cultureProfile  CultureProfile?  @relation(fields: [cultureProfileId], references: [id])
-  economicProfile EconomicProfile? @relation(fields: [economicProfileId], references: [id])
-  creator         User             @relation("PersonaCreator", fields: [createdBy], references: [id])
+  segment              Segment               @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  cultureProfile       CultureProfile?       @relation(fields: [cultureProfileId], references: [id])
+  economicProfile      EconomicProfile?      @relation(fields: [economicProfileId], references: [id])
+  creator              User                  @relation("PersonaCreator", fields: [createdBy], references: [id])
+  positioningStrategies PositioningStrategy[]
+  messagingStrategies   MessagingStrategy[]
+  pricingStrategies     PricingStrategy[]
 
   @@map("personas")
 }
