@@ -169,8 +169,8 @@ model Persona {
 }
 
 model PositioningStrategy {
-  id                   String   @id @default(uuid())
-  personaId            String   @map("persona_id")
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  personaId            String   @map("persona_id") @db.ObjectId
   version              Int      @default(1)
   status               String   @default("draft") // draft | published
   positioningStatement String?  @map("positioning_statement")
@@ -183,7 +183,7 @@ model PositioningStrategy {
   elevatorPitch30s     String?  @map("elevator_pitch_30s")
   inputs               Json?    // Original inputs used for generation
   assumptionsVsFacts   Json?    @map("assumptions_vs_facts")
-  createdBy            String   @map("created_by")
+  createdBy            String   @map("created_by") @db.ObjectId
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
 
