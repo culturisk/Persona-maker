@@ -257,15 +257,18 @@ backend:
 
   - task: "Strategy Export Endpoints - GET /api/personas/{id}/strategies/{type}/export"
     implemented: true
-    working: "NA"
+    working: true
     file: "app/api/[[...path]]/route.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "testing"
           comment: "Strategy export endpoints implemented including individual strategy exports and export-all functionality. Routes properly configured for /api/personas/{id}/strategies/positioning/export, /api/personas/{id}/strategies/messaging/export, /api/personas/{id}/strategies/pricing/export, and /api/personas/{id}/strategies/export-all. Cannot test due to database connection failure."
+        - working: true
+          agent: "testing"
+          comment: "Successfully tested all strategy export endpoints. ✅ Individual exports: All three strategy types (positioning, messaging, pricing) export with proper metadata and timestamps. ✅ Export-all functionality: Returns complete persona data with segment, culture profile, economic profile, and strategy placeholders. ✅ Original persona export: Includes assumptions_vs_facts section and complete export metadata. All export endpoints working correctly with proper JSON structure."
 
   - task: "Strategy AI Implementation - Cultural and Economic Adaptation"
     implemented: true
