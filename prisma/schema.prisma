@@ -30,9 +30,9 @@ model User {
 }
 
 model Workspace {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
-  ownerId   String   @map("owner_id")
+  ownerId   String   @map("owner_id") @db.ObjectId
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relationships
