@@ -248,8 +248,8 @@ model PricingStrategy {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String?  @map("user_id")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @map("user_id") @db.ObjectId
   action    String
   resource  String
   resourceId String? @map("resource_id")
