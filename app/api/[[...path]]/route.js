@@ -8,6 +8,7 @@ import {
   validateSegmentForm, 
   validateCultureForm, 
   validateEconomicForm,
+  validateWorkspaceForm,
   validateContent 
 } from '../../../lib/validation.js';
 
