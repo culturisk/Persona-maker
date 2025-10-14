@@ -58,8 +58,8 @@ model WorkspaceMember {
 }
 
 model Segment {
-  id            String   @id @default(uuid())
-  workspaceId   String   @map("workspace_id")
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId   String   @map("workspace_id") @db.ObjectId
   name          String
   frame         String?
   product       String?
@@ -73,7 +73,7 @@ model Segment {
   languageGuardrails Json? @map("language_guardrails") // do_not_say / say_instead
   evidence      String?
   notes         String?
-  createdBy     String   @map("created_by")
+  createdBy     String   @map("created_by") @db.ObjectId
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relationships
