@@ -44,9 +44,9 @@ model Workspace {
 }
 
 model WorkspaceMember {
-  id          String @id @default(uuid())
-  workspaceId String @map("workspace_id")
-  userId      String @map("user_id")
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId String @map("workspace_id") @db.ObjectId
+  userId      String @map("user_id") @db.ObjectId
   role        String @default("member") // member, admin
 
   // Relationships
