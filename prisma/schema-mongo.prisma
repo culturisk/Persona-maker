@@ -1,0 +1,256 @@
+// Human-Rooted Segmentation Studio Database Schema - MongoDB
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URL")
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  email      String   @unique
+  name       String?
+  avatarUrl  String?  @map("avatar_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  ownedWorkspaces        Workspace[]           @relation("WorkspaceOwner")
+  workspaceMemberships   WorkspaceMember[]
+  createdSegments        Segment[]             @relation("SegmentCreator")
+  createdPersonas        Persona[]             @relation("PersonaCreator")
+  createdPositioningStrategies PositioningStrategy[] @relation("PositioningCreator")
+  createdMessagingStrategies   MessagingStrategy[]   @relation("MessagingCreator")
+  createdPricingStrategies     PricingStrategy[]     @relation("PricingCreator")
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  ownerId   String   @map("owner_id") @db.ObjectId
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  owner    User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members  WorkspaceMember[]
+  segments Segment[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId String @map("workspace_id") @db.ObjectId
+  userId      String @map("user_id") @db.ObjectId
+  role        String @default("member") // member, admin
+
+  // Relationships
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_members")
+}
+
+model Segment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId   String   @map("workspace_id") @db.ObjectId
+  name          String
+  frame         String?
+  product       String?
+  primaryBenefit String? @map("primary_benefit")
+  reason        String?
+  context       String?
+  cultureAxes   Json?    @map("culture_axes")
+  values        Json?
+  emotions      Json?
+  fears         Json?
+  languageGuardrails Json? @map("language_guardrails")
+  evidence      String?
+  notes         String?
+  createdBy     String   @map("created_by") @db.ObjectId
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creator         User            @relation("SegmentCreator", fields: [createdBy], references: [id])
+  cultureProfile  CultureProfile?
+  economicProfile EconomicProfile?
+  personas        Persona[]
+
+  @@map("segments")
+}
+
+model CultureProfile {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId          String   @unique @map("segment_id") @db.ObjectId
+  locale             String?
+  languages          Json?
+  region             Json?
+  urbanicity         String?
+  communicationStyle String?  @map("communication_style")
+  timeOrientation    String?  @map("time_orientation")
+  formalityNorm      String?  @map("formality_norm")
+  workweek           Json?
+  schedulingNorms    Json?    @map("scheduling_norms")
+  festivals          Json?
+  purchasingConstraints Json? @map("purchasing_constraints")
+  deviceChannelPrefs Json?   @map("device_channel_prefs")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment  Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  personas Persona[]
+
+  @@map("culture_profiles")
+}
+
+model EconomicProfile {
+  id                        String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId                 String   @unique @map("segment_id") @db.ObjectId
+  incomeBracket             String?  @map("income_bracket")
+  currency                  String?  @default("INR")
+  profession                String?
+  industry                  String?
+  yearsOfService            Int?     @map("years_of_service")
+  employmentType            String?  @map("employment_type")
+  financialBackground       String?  @map("financial_background")
+  familyFinancialBackground String?  @map("family_financial_background")
+  socioeconomicStatus       String?  @map("socioeconomic_status")
+  priceSensitivity          String?  @map("price_sensitivity")
+  purchaseFrequency         String?  @map("purchase_frequency")
+  paymentBehaviour          Json?    @map("payment_behaviour")
+  savingsInclination        String?  @map("savings_inclination")
+  riskAppetite              String?  @map("risk_appetite")
+  creditAccess              String?  @map("credit_access")
+  financialGoals            Json?    @map("financial_goals")
+  constraints               Json?
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment  Segment   @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  personas Persona[]
+
+  @@map("economic_profiles")
+}
+
+model Persona {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId         String   @map("segment_id") @db.ObjectId
+  cultureProfileId  String?  @map("culture_profile_id") @db.ObjectId
+  economicProfileId String?  @map("economic_profile_id") @db.ObjectId
+  name              String
+  positioning       String?
+  culturalCues      Json?    @map("cultural_cues")
+  economicCues      Json?    @map("economic_cues")
+  generalizations   Json?
+  pillars           Json?
+  exportSnapshot    Json?    @map("export_snapshot")
+  createdBy         String   @map("created_by") @db.ObjectId
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  segment              Segment               @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  cultureProfile       CultureProfile?       @relation(fields: [cultureProfileId], references: [id])
+  economicProfile      EconomicProfile?      @relation(fields: [economicProfileId], references: [id])
+  creator              User                  @relation("PersonaCreator", fields: [createdBy], references: [id])
+  positioningStrategies PositioningStrategy[]
+  messagingStrategies   MessagingStrategy[]
+  pricingStrategies     PricingStrategy[]
+
+  @@map("personas")
+}
+
+model PositioningStrategy {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  personaId            String   @map("persona_id") @db.ObjectId
+  version              Int      @default(1)
+  status               String   @default("draft") // draft | published
+  positioningStatement String?  @map("positioning_statement")
+  competitiveFrame     String?  @map("competitive_frame")
+  categoryEntryPoints  Json?    @map("category_entry_points")
+  reasonsToBelieve     Json?    @map("reasons_to_believe")
+  antiPositioning      Json?    @map("anti_positioning")
+  elevatorPitch1s      String?  @map("elevator_pitch_1s")
+  elevatorPitch10s     String?  @map("elevator_pitch_10s")
+  elevatorPitch30s     String?  @map("elevator_pitch_30s")
+  inputs               Json?
+  assumptionsVsFacts   Json?    @map("assumptions_vs_facts")
+  createdBy            String   @map("created_by") @db.ObjectId
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("PositioningCreator", fields: [createdBy], references: [id])
+
+  @@map("positioning_strategies")
+}
+
+model MessagingStrategy {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  personaId            String   @map("persona_id") @db.ObjectId
+  version              Int      @default(1)
+  status               String   @default("draft") // draft | published
+  messagingPillars     Json?    @map("messaging_pillars")
+  toneOfVoice          Json?    @map("tone_of_voice")
+  objections           Json?
+  channelPlan          Json?    @map("channel_plan")
+  contentThemes        Json?    @map("content_themes")
+  contentCalendar      Json?    @map("content_calendar")
+  localizationOptions  Json?    @map("localization_options")
+  assetTemplates       Json?    @map("asset_templates")
+  inputs               Json?
+  assumptionsVsFacts   Json?    @map("assumptions_vs_facts")
+  createdBy            String   @map("created_by") @db.ObjectId
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("MessagingCreator", fields: [createdBy], references: [id])
+
+  @@map("messaging_strategies")
+}
+
+model PricingStrategy {
+  id                     String   @id @default(auto()) @map("_id") @db.ObjectId
+  personaId              String   @map("persona_id") @db.ObjectId
+  version                Int      @default(1)
+  status                 String   @default("draft") // draft | published
+  pricingTiers           Json?    @map("pricing_tiers")
+  paymentOptions         Json?    @map("payment_options")
+  monetizationHypotheses Json?    @map("monetization_hypotheses")
+  valueMetrics           Json?    @map("value_metrics")
+  competitivePricing     Json?    @map("competitive_pricing")
+  discountStrategy       Json?    @map("discount_strategy")
+  inputs                 Json?
+  assumptionsVsFacts     Json?    @map("assumptions_vs_facts")
+  createdBy              String   @map("created_by") @db.ObjectId
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("PricingCreator", fields: [createdBy], references: [id])
+
+  @@map("pricing_strategies")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @map("user_id") @db.ObjectId
+  action    String
+  resource  String
+  resourceId String? @map("resource_id")
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
