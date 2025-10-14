@@ -150,6 +150,7 @@ export default function App() {
   });
   
   const [generatedPersona, setGeneratedPersona] = useState(null);
+  const [viewingPersona, setViewingPersona] = useState(null);
 
   // Authentication check
   useEffect(() => {
