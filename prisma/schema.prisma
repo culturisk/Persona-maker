@@ -87,8 +87,8 @@ model Segment {
 }
 
 model CultureProfile {
-  id                 String   @id @default(uuid())
-  segmentId          String   @unique @map("segment_id")
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  segmentId          String   @unique @map("segment_id") @db.ObjectId
   locale             String?  // e.g., en-IN, hi-IN, mr-IN
   languages          Json?    // [{code:"mr", script:"Deva", proficiency:"primary"}, ...]
   region             Json?    // {country:"IN", state:"MH", city:"Pune", city_tier:"Tier-1|2|3"}
