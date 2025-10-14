@@ -296,12 +296,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Human-Rooted Segmentation Studio features tested"
-    - "Persona generation endpoint needs minor fix"
+    - "Strategy Building functionality - Phase 2 & 3 testing"
+    - "Database connection issue blocking all API testing"
   stuck_tasks: 
-    - "Persona Generation - POST /api/personas/generate (minor function reference issue)"
+    - "Database Connection - MongoDB Prisma client connectivity failure"
+    - "Strategy Generation API Endpoints - Cannot test due to DB issues"
+    - "Strategy Export Endpoints - Cannot test due to DB issues"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "infrastructure_first"
 
 agent_communication:
     - agent: "testing"
