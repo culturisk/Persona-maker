@@ -37,6 +37,7 @@ import { WorkspaceHeader } from '@/components/workspace-header.jsx';
 import { FormField } from '@/components/ui/form-field.jsx';
 import { LoadingSpinner } from '@/components/ui/loading-spinner.jsx';
 import { PersonaExport } from '@/components/persona-export.jsx';
+import { PersonaDetail } from '@/components/persona-detail.jsx';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
