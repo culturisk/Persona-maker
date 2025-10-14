@@ -215,15 +215,18 @@ backend:
 
   - task: "Persona Generation - POST /api/personas/generate"
     implemented: true
-    working: false
+    working: true
     file: "app/api/[[...path]]/route.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "testing"
           comment: "Minor: Persona generation endpoint has a function reference issue (ensureMockUser not defined). Core AI generation logic is implemented and working. Fixed function reference but needs retesting. All other persona-related functionality (DELETE /api/personas/:id) working correctly."
+        - working: true
+          agent: "testing"
+          comment: "Successfully tested persona generation with complete segment+culture+economic data. Generated persona 'The Pragmatist (SME owner)' with proper cultural cues (low-context communication) and economic cues (UPI preference, high price sensitivity). AI generation working correctly."
 
   - task: "Export Functionality - GET /api/personas/:id/export"
     implemented: true
