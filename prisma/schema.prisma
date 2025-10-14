@@ -162,6 +162,85 @@ model Persona {
   @@map("personas")
 }
 
+model PositioningStrategy {
+  id                   String   @id @default(uuid())
+  personaId            String   @map("persona_id")
+  version              Int      @default(1)
+  status               String   @default("draft") // draft | published
+  positioningStatement String?  @map("positioning_statement")
+  competitiveFrame     String?  @map("competitive_frame")
+  categoryEntryPoints  Json?    @map("category_entry_points")
+  reasonsToBelieve     Json?    @map("reasons_to_believe")
+  antiPositioning      Json?    @map("anti_positioning")
+  elevatorPitch1s      String?  @map("elevator_pitch_1s")
+  elevatorPitch10s     String?  @map("elevator_pitch_10s")
+  elevatorPitch30s     String?  @map("elevator_pitch_30s")
+  inputs               Json?    // Original inputs used for generation
+  assumptionsVsFacts   Json?    @map("assumptions_vs_facts")
+  createdBy            String   @map("created_by")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("PositioningCreator", fields: [createdBy], references: [id])
+
+  @@unique([personaId, version])
+  @@map("positioning_strategies")
+}
+
+model MessagingStrategy {
+  id                   String   @id @default(uuid())
+  personaId            String   @map("persona_id")
+  version              Int      @default(1)
+  status               String   @default("draft") // draft | published
+  messagingPillars     Json?    @map("messaging_pillars") // 3-4 pillars with titles and messages
+  toneOfVoice          Json?    @map("tone_of_voice") // Based on communication style
+  objections           Json?    // Common objections and counter-responses
+  channelPlan          Json?    @map("channel_plan") // Channel-specific messaging
+  contentThemes        Json?    @map("content_themes") // Content ideas and themes
+  contentCalendar      Json?    @map("content_calendar") // Calendar suggestions
+  localizationOptions  Json?    @map("localization_options") // Language/regional adaptations
+  assetTemplates       Json?    @map("asset_templates") // Template suggestions
+  inputs               Json?    // Original inputs used for generation
+  assumptionsVsFacts   Json?    @map("assumptions_vs_facts")
+  createdBy            String   @map("created_by")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("MessagingCreator", fields: [createdBy], references: [id])
+
+  @@unique([personaId, version])
+  @@map("messaging_strategies")
+}
+
+model PricingStrategy {
+  id                     String   @id @default(uuid())
+  personaId              String   @map("persona_id")
+  version                Int      @default(1)
+  status                 String   @default("draft") // draft | published
+  pricingTiers           Json?    @map("pricing_tiers") // 2-4 tiers with features and prices
+  paymentOptions         Json?    @map("payment_options") // EMI, UPI, bundles based on behavior
+  monetizationHypotheses Json?    @map("monetization_hypotheses") // Testing hypotheses
+  valueMetrics           Json?    @map("value_metrics") // How to measure and communicate value
+  competitivePricing     Json?    @map("competitive_pricing") // Positioning against competitors
+  discountStrategy       Json?    @map("discount_strategy") // When and how to discount
+  inputs                 Json?    // Original inputs used for generation
+  assumptionsVsFacts     Json?    @map("assumptions_vs_facts")
+  createdBy              String   @map("created_by")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  persona Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  creator User    @relation("PricingCreator", fields: [createdBy], references: [id])
+
+  @@unique([personaId, version])
+  @@map("pricing_strategies")
+}
+
 model AuditLog {
   id        String   @id @default(uuid())
   userId    String?  @map("user_id")
