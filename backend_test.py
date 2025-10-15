@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime
 
 # Get base URL from environment
-BASE_URL = "https://human-segments.preview.emergentagent.com/api"
+BASE_URL = "https://rooted-personas.preview.emergentagent.com/api"
 DEMO_MODE = True  # Test with demo mode fallback
 
 class EnhancedBackendTester:

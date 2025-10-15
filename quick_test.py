@@ -6,7 +6,7 @@ Quick test of enhanced features
 import requests
 import json
 
-BASE_URL = "https://human-segments.preview.emergentagent.com/api"
+BASE_URL = "https://rooted-personas.preview.emergentagent.com/api"
 
 def test_validation():
     """Test validation system"""

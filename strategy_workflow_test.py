@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://human-segments.preview.emergentagent.com/api"
+BASE_URL = "https://rooted-personas.preview.emergentagent.com/api"
 DEMO_MODE = True
 
 class StrategyWorkflowTester:
