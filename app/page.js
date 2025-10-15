@@ -1239,3 +1239,18 @@ function AppContent() {
     </div>
   );
 }
+
+export default function App() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner className="mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading application...</p>
+        </div>
+      </div>
+    }>
+      <AppContent />
+    </Suspense>
+  );
+}
