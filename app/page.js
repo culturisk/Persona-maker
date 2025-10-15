@@ -244,8 +244,8 @@ export default function App() {
 
   // Search and filter functionality
   const filteredSegments = segments.filter(segment => {
-    const matchesSearch = segment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         segment.context?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = segment?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         segment?.context?.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (filterBy === 'all') return matchesSearch;
     if (filterBy === 'with_personas') return matchesSearch && segment.personas?.length > 0;
