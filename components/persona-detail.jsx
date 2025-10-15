@@ -25,7 +25,8 @@ import {
   FileText,
   CheckCircle,
   Clock,
-  RefreshCw
+  RefreshCw,
+  Globe
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner.jsx';
 
