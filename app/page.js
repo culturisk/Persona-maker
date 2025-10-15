@@ -82,7 +82,7 @@ import {
   CULTURE_AXES
 } from '../lib/seed-data.js';
 
-export default function App() {
+function AppContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
