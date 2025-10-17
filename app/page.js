@@ -83,7 +83,7 @@ import {
 } from '../lib/seed-data.js';
 
 function AppContent() {
-  const { data: session, status } = useSession();
+  const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isDemoMode = searchParams?.get('demo') === 'true';
