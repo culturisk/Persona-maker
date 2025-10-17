@@ -19,6 +19,7 @@ model User {
   createdAt  DateTime @default(now()) @map("created_at")
 
   // Relationships
+  sessions               Session[]
   ownedWorkspaces        Workspace[]           @relation("WorkspaceOwner")
   workspaceMemberships   WorkspaceMember[]
   createdSegments        Segment[]             @relation("SegmentCreator")
@@ -28,6 +29,19 @@ model User {
   createdPricingStrategies     PricingStrategy[]     @relation("PricingCreator")
 
   @@map("users")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.ObjectId
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model Workspace {
