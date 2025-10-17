@@ -72,15 +72,15 @@ export default function SignIn() {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={handleGoogleSignIn} 
-                disabled={loading}
+                onClick={handleSignIn} 
+                disabled={authLoading || isRedirecting}
                 className="w-full"
                 size="lg"
               >
-                {loading ? 'Signing in...' : 'Continue with Google'}
+                {isRedirecting ? 'Redirecting...' : authLoading ? 'Loading...' : 'Sign in with Google'}
               </Button>
               <p className="text-xs text-muted-foreground mt-3">
-                We only access your basic profile information (email, name). No Gmail data.
+                Secure authentication powered by Emergent. We only access your basic profile.
               </p>
             </CardContent>
           </Card>
