@@ -137,17 +137,17 @@ export function WorkspaceHeader({ workspace, onWorkspaceChange }) {
             </DialogContent>
           </Dialog>
 
-          {session?.user && (
+          {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                   <Avatar className="h-9 w-9">
                     <AvatarImage 
-                      src={session.user.image} 
-                      alt={session.user.name || 'User'} 
+                      src={user.picture} 
+                      alt={user.name || 'User'} 
                     />
                     <AvatarFallback>
-                      {getUserInitials(session.user.name)}
+                      {getUserInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -156,10 +156,10 @@ export function WorkspaceHeader({ workspace, onWorkspaceChange }) {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {session.user.name}
+                      {user.name}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {session.user.email}
+                      {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
