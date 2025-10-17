@@ -1,43 +1,27 @@
 'use client';
 
-import { signIn, getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Shield, Zap, Globe } from 'lucide-react';
 
 export default function SignIn() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading, login } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     // Check if already signed in
-    getSession().then((session) => {
-      if (session) {
-        router.push('/');
-      }
-    });
-  }, [router]);
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      const result = await signIn('google', { 
-        callbackUrl: '/',
-        redirect: false 
-      });
-      
-      if (result?.ok) {
-        router.push('/');
-      } else if (result?.error) {
-        console.error('Sign in error:', result.error);
-      }
-    } catch (error) {
-      console.error('Sign in error:', error);
-    } finally {
-      setLoading(false);
+    if (!authLoading && user) {
+      router.push('/');
     }
+  }, [user, authLoading, router]);
+
+  const handleSignIn = async () => {
+    setIsRedirecting(true);
+    login();
   };
 
   const handleDemoMode = () => {
