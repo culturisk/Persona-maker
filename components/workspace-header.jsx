@@ -33,13 +33,13 @@ import {
 } from 'lucide-react';
 
 export function WorkspaceHeader({ workspace, onWorkspaceChange }) {
-  const { data: session } = useSession();
+  const { user, logout } = useAuth();
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/auth/signin' });
+    logout();
   };
 
   const createWorkspace = async () => {
