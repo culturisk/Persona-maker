@@ -523,7 +523,7 @@ async function createCultureProfile(request) {
         createdAt: new Date()
       };
       
-      return NextResponse.json({ cultureProfile: mockProfile });
+      return NextResponse.json({ profile: mockProfile, cultureProfile: mockProfile });
     }
   } catch (error) {
     console.error('Error creating culture profile:', error);
