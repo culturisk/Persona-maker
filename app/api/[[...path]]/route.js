@@ -24,18 +24,31 @@ async function getCurrentUserOrMock(request) {
     // Check if demo mode
     const url = new URL(request.url);
     if (url.searchParams.get('demo') === 'true') {
-      return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+      // Return simple mock user without DB operations
+      return {
+        id: 'demo-user-id',
+        email: MOCK_USER.email,
+        name: MOCK_USER.name
+      };
     }
     
     // Try to get authenticated user
     const user = await getCurrentUser(request);
     if (user) return user;
     
-    // Fallback to mock user if no auth
-    return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+    // Fallback to simple mock user
+    return {
+      id: 'demo-user-id',
+      email: MOCK_USER.email,
+      name: MOCK_USER.name
+    };
   } catch (error) {
     console.error('Error getting user:', error);
-    return await getOrCreateUser(MOCK_USER.email, MOCK_USER.name);
+    return {
+      id: 'demo-user-id',
+      email: MOCK_USER.email,
+      name: MOCK_USER.name
+    };
   }
 }
 
