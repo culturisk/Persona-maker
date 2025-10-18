@@ -29,6 +29,7 @@ import {
   Globe
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner.jsx';
+import { PricingStrategyBuilder } from '@/components/pricing-strategy-builder';
 
 export function PersonaDetail({ persona, onBack }) {
   const [strategies, setStrategies] = useState({
