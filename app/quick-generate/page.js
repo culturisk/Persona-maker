@@ -315,7 +315,7 @@ function QuickGenerateContent() {
               <div className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
                   <Zap className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-medium text-primary">Quick Generate</span>
+                  <span className="text-sm font-medium text-primary">Culturisk Quick Generate</span>
                 </div>
                 <h1 className="text-4xl font-bold mb-4">Generate Multiple Personas in One Click</h1>
                 <p className="text-xl text-muted-foreground">
