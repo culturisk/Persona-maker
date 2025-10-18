@@ -209,6 +209,7 @@ function QuickGenerateContent() {
         });
         
         const cultureData = await cultureResponse.json();
+        const cultureProfile = cultureData.cultureProfile || cultureData.profile || { id: `culture-${Date.now()}` };
         
         // Create economic profile  
         const economicResponse = await fetch('/api/economic-profiles', {
@@ -237,6 +238,7 @@ function QuickGenerateContent() {
         });
         
         const economicData = await economicResponse.json();
+        const economicProfile = economicData.economicProfile || economicData.profile || { id: `economic-${Date.now()}` };
         
         // Generate persona
         const personaResponse = await fetch('/api/personas/generate', {
@@ -244,8 +246,8 @@ function QuickGenerateContent() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             segmentId: segment.id,
-            cultureProfileId: cultureData.cultureProfile.id,
-            economicProfileId: economicData.economicProfile.id
+            cultureProfileId: cultureProfile.id,
+            economicProfileId: economicProfile.id
           })
         });
         
