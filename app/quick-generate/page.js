@@ -105,16 +105,20 @@ function QuickGenerateContent() {
   const [selectedTemplates, setSelectedTemplates] = useState([]);
   const [generatedPersonas, setGeneratedPersonas] = useState([]);
   
+  // Check for demo mode
+  const isDemoMode = typeof window !== 'undefined' && window.location.search.includes('demo=true');
+  
   // Load workspaces
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading) {
       loadWorkspaces();
     }
-  }, [user, authLoading]);
+  }, [authLoading]);
   
   const loadWorkspaces = async () => {
     try {
-      const response = await fetch('/api/workspaces');
+      const url = isDemoMode ? '/api/workspaces?demo=true' : '/api/workspaces';
+      const response = await fetch(url);
       const data = await response.json();
       setWorkspaces(data.workspaces || []);
       if (data.workspaces?.length > 0) {
