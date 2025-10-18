@@ -143,6 +143,12 @@ function QuickGenerateContent() {
       return;
     }
     
+    if (!currentWorkspace) {
+      toast.error('No workspace found. Please try again.');
+      await loadWorkspaces();
+      return;
+    }
+    
     setLoading(true);
     setStep('generating');
     
