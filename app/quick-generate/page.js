@@ -24,6 +24,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { PersonaAnalysisTable } from '@/components/persona-analysis-table';
 
 // Preset templates for quick generation
 const PERSONA_TEMPLATES = [
