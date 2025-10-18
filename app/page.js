@@ -1159,7 +1159,7 @@ function AppContent() {
   );
 
   // Show loading while checking authentication
-  if (status === 'loading') {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
