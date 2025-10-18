@@ -193,42 +193,41 @@ export function PricingStrategyBuilder({ persona, onSave }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <CardTitle className="text-2xl">Pricing Strategy Builder</CardTitle>
-                <CardDescription className="text-base">
-                  Design optimized pricing for {persona.name}
-                </CardDescription>
-              </div>
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-8 h-8 text-white" />
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={generateWithAI}
-                disabled={loading}
-                variant="default"
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {loading ? 'Generating...' : 'Generate with AI'}
-              </Button>
-              <Button
-                onClick={downloadPDF}
-                variant="outline"
-                disabled={strategy.tiers.length === 0}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export PDF
-              </Button>
+            <div>
+              <h2 className="text-2xl font-bold">Pricing Strategy</h2>
+              <p className="text-muted-foreground">
+                Optimize pricing for {persona.name}
+              </p>
             </div>
           </div>
-        </CardHeader>
-      </Card>
+          <div className="flex gap-3">
+            <Button
+              onClick={generateWithAI}
+              disabled={loading}
+              size="lg"
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {loading ? 'Generating...' : 'Auto-Generate'}
+            </Button>
+            <Button
+              onClick={downloadPDF}
+              variant="outline"
+              size="lg"
+              disabled={strategy.tiers.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download PDF
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <Tabs defaultValue="model" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
