@@ -36,7 +36,8 @@ export async function GET() {
     }
     
     // Fallback to Emergent API validation
-    const response = await fetch('https://demobackend.emergentagent.com/auth/v1/env/user', {
+    const backendUrl = process.env.EMERGENT_BACKEND_URL || 'https://demobackend.emergentagent.com';
+    const response = await fetch(`${backendUrl}/auth/v1/env/user`, {
       headers: {
         'Authorization': `Bearer ${sessionToken}`
       }
