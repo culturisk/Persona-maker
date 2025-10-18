@@ -168,8 +168,17 @@ function QuickGenerateContent() {
         })
       });
       
+      if (!segmentResponse.ok) {
+        const errorData = await segmentResponse.json();
+        throw new Error(errorData.error || 'Failed to create segment');
+      }
+      
       const segmentData = await segmentResponse.json();
       const segment = segmentData.segment;
+      
+      if (!segment || !segment.id) {
+        throw new Error('Segment creation returned invalid data');
+      }
       
       // Generate personas for each selected template
       const personas = [];
