@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Shield, Zap, Globe } from 'lucide-react';
+import { Users, Shield, Zap, Globe, DollarSign } from 'lucide-react';
 
 export default function SignIn() {
   const router = useRouter();
