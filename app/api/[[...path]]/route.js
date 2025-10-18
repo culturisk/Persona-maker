@@ -269,17 +269,27 @@ async function getSegments(workspaceId, request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const segments = await prisma.segment.findMany({
-      where: { workspaceId },
-      include: {
-        cultureProfile: true,
-        economicProfile: true,
-        personas: { select: { id: true, name: true } },
-        creator: { select: { id: true, name: true, email: true } }
-      }
-    });
-    
-    return NextResponse.json({ segments });
+    // For demo mode, return empty array
+    if (user.id === 'demo-user-id') {
+      return NextResponse.json({ segments: [] });
+    }
+
+    try {
+      const segments = await prisma.segment.findMany({
+        where: { workspaceId },
+        include: {
+          cultureProfile: true,
+          economicProfile: true,
+          personas: { select: { id: true, name: true } },
+          creator: { select: { id: true, name: true, email: true } }
+        }
+      });
+      
+      return NextResponse.json({ segments });
+    } catch (dbError) {
+      console.error('Database error, returning empty segments:', dbError);
+      return NextResponse.json({ segments: [] });
+    }
   } catch (error) {
     console.error('Error fetching segments:', error);
     return NextResponse.json({ error: 'Failed to fetch segments' }, { status: 500 });
