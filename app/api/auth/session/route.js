@@ -11,7 +11,8 @@ export async function POST(request) {
     }
     
     // Exchange session_id for session data
-    const response = await fetch('https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data', {
+    const backendUrl = process.env.EMERGENT_BACKEND_URL || 'https://demobackend.emergentagent.com';
+    const response = await fetch(`${backendUrl}/auth/v1/env/oauth/session-data`, {
       headers: {
         'X-Session-ID': session_id
       }
