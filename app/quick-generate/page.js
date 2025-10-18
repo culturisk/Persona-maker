@@ -430,7 +430,7 @@ function QuickGenerateContent() {
                             size="lg"
                             onClick={handleQuickGenerate}
                             disabled={!segmentName || !product || selectedTemplates.length === 0 || loading}
-                            className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-6"
+                            className="bg-green-600 hover:bg-green-700 text-white font-bold text-lg px-8 py-6 cursor-pointer shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95"
                           >
                             <Zap className="w-5 h-5 mr-2" />
                             {loading ? 'ACTIVATING...' : 'ACTIVATE'}
