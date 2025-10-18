@@ -3,8 +3,11 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata = {
-  title: "Human-Rooted Segmentation Studio",
+  title: "Pricer - Human-Rooted Segmentation Studio",
   description: "Build personas from human needs, culture, and economics",
+  icons: {
+    icon: '/logos/1.png',
+  },
 };
 
 export default function RootLayout({ children }) {
