@@ -498,6 +498,16 @@ async function createCultureProfile(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
+    // For demo/mock segments, skip validation and use mock profile
+    if (data.segmentId && data.segmentId.startsWith('seg-')) {
+      const mockProfile = {
+        id: `culture-${Date.now()}`,
+        ...data,
+        createdAt: new Date()
+      };
+      return NextResponse.json({ profile: mockProfile, cultureProfile: mockProfile });
+    }
+    
     const validation = validateCultureForm(data);
     if (!validation.success) {
       return NextResponse.json({ 
