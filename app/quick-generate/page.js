@@ -454,85 +454,15 @@ function QuickGenerateContent() {
             </div>
           )}
           
-          {step === 'results' && (
-            <div>
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-2">✨ Generated {generatedPersonas.length} Personas</h2>
-                <p className="text-muted-foreground">
-                  Review your AI-generated personas below
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {generatedPersonas.map((persona, index) => (
-                  <Card key={persona.id} className="overflow-hidden">
-                    <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-3xl">{persona.templateIcon}</span>
-                          <div>
-                            <CardTitle>{persona.name}</CardTitle>
-                            <Badge variant="secondary" className="mt-1">
-                              {persona.template}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-semibold mb-1">Positioning</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {persona.positioning}
-                          </p>
-                        </div>
-                        
-                        {persona.culturalCues && persona.culturalCues.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                              <Globe className="w-4 h-4" />
-                              Cultural Insights
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {persona.culturalCues.slice(0, 3).map((cue, i) => (
-                                <Badge key={i} variant="outline">
-                                  {cue}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {persona.economicCues && persona.economicCues.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold mb-2 flex items-center gap-2">
-                              <DollarSign className="w-4 h-4" />
-                              Economic Insights
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {persona.economicCues.slice(0, 3).map((cue, i) => (
-                                <Badge key={i} variant="outline">
-                                  {cue}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <Button
-                          className="w-full"
-                          variant="outline"
-                          onClick={() => router.push(`/?persona=${persona.id}`)}
-                        >
-                          View Full Details
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+          {step === 'results' && generatedPersonas.length > 0 && (
+            <PersonaAnalysisTable
+              persona={generatedPersonas[0]}
+              product={product}
+              onProceedToPricing={() => {
+                // Navigate to pricing strategy for this persona
+                router.push(`/?persona=${generatedPersonas[0].id}&tab=pricing`);
+              }}
+            />
           )}
         </div>
       </div>
