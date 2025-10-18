@@ -33,9 +33,10 @@ export default function SignIn() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Human-Rooted Segmentation Studio</h1>
+          <img src="/logos/1.png" alt="Pricer Logo" className="h-24 w-auto mx-auto mb-6" />
+          <h1 className="text-4xl font-bold mb-4">Pricer - Human-Rooted Segmentation Studio</h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Build personas from human needs, culture, and economics
+            Build personas from human needs, culture, and economics - then optimize pricing
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
