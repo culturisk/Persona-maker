@@ -822,7 +822,13 @@ export function PersonaDetail({ persona, onBack }) {
         </TabsContent>
 
         <TabsContent value="pricing">
-          {renderPricingStrategy()}
+          <PricingStrategyBuilder 
+            persona={persona}
+            onSave={(strategy) => {
+              // Handle saving pricing strategy
+              setStrategies(prev => ({ ...prev, pricing: strategy }));
+            }}
+          />
         </TabsContent>
       </Tabs>
 
