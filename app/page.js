@@ -365,10 +365,16 @@ function AppContent() {
                   <Building className="w-5 h-5" />
                   Segments
                 </div>
-                <Button onClick={() => setActiveStep('segment')}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Segment
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={() => router.push('/quick-generate')} variant="default">
+                    <Zap className="w-4 h-4 mr-2" />
+                    Quick Generate
+                  </Button>
+                  <Button onClick={() => setActiveStep('segment')} variant="outline">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Manual Setup
+                  </Button>
+                </div>
               </CardTitle>
               <CardDescription>
                 Manage your segmentation projects and personas
