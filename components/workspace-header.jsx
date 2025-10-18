@@ -81,9 +81,9 @@ export function WorkspaceHeader({ workspace, onWorkspaceChange }) {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Building className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold">Segmentation Studio</h1>
+          <div className="flex items-center gap-3">
+            <img src="/logos/1.png" alt="Pricer Logo" className="h-10 w-auto" />
+            <h1 className="text-xl font-bold">Pricer Studio</h1>
           </div>
           
           {workspace && (
