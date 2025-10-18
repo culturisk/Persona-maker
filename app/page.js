@@ -31,7 +31,8 @@ import {
   Trash2,
   Search,
   Filter,
-  MoreVertical
+  MoreVertical,
+  Zap
 } from 'lucide-react';
 import { WorkspaceHeader } from '@/components/workspace-header.jsx';
 import { FormField } from '@/components/ui/form-field.jsx';
