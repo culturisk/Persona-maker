@@ -33,8 +33,11 @@ export default function SignIn() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <img src="/logos/1.png" alt="Pricer Logo" className="h-24 w-auto mx-auto mb-6" />
-          <h1 className="text-4xl font-bold mb-4">Pricer - Human-Rooted Segmentation Studio</h1>
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Users className="w-16 h-16 text-primary" />
+            <DollarSign className="w-16 h-16 text-green-600" />
+          </div>
+          <h1 className="text-4xl font-bold mb-4">Culturisk Persona Maker & Pricer</h1>
           <p className="text-lg text-muted-foreground mb-8">
             Build personas from human needs, culture, and economics - then optimize pricing
           </p>
