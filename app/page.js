@@ -170,25 +170,38 @@ function AppContent() {
     try {
       const url = isDemoMode ? '/api/workspaces?demo=true' : '/api/workspaces';
       const response = await fetch(url);
-      const data = await response.json();
-      setWorkspaces(data.workspaces || []);
       
-      if (data.workspaces?.length > 0) {
-        setCurrentWorkspace(data.workspaces[0]);
-        loadSegments(data.workspaces[0].id);
+      if (!response.ok) {
+        throw new Error('Failed to fetch workspaces');
+      }
+      
+      const data = await response.json();
+      const workspaceList = data.workspaces || [];
+      setWorkspaces(workspaceList);
+      
+      if (workspaceList.length > 0) {
+        setCurrentWorkspace(workspaceList[0]);
+        // Load segments in parallel without waiting
+        loadSegments(workspaceList[0].id);
       }
     } catch (error) {
-      toast.error('Failed to load workspaces');
+      console.error('Workspace load error:', error);
+      // Don't show error toast, just use empty state
+      setWorkspaces([]);
     }
   };
 
   const loadSegments = async (workspaceId) => {
     try {
       const response = await fetch(`/api/workspaces/${workspaceId}/segments`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch segments');
+      }
       const data = await response.json();
       setSegments(data.segments || []);
     } catch (error) {
-      toast.error('Failed to load segments');
+      console.error('Segment load error:', error);
+      setSegments([]);
     }
   };
 
