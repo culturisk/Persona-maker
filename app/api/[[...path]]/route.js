@@ -566,7 +566,7 @@ async function createEconomicProfile(request) {
         createdAt: new Date()
       };
       
-      return NextResponse.json({ economicProfile: mockProfile });
+      return NextResponse.json({ profile: mockProfile, economicProfile: mockProfile });
     }
   } catch (error) {
     console.error('Error creating economic profile:', error);
